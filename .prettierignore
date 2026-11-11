@@ -1,0 +1,9 @@
+.cache
+.local
+node_modules
+**/node_modules
+**/dist
+**/target
+**/coverage
+*.pdf
+package-lock.json

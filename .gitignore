@@ -1,0 +1,16 @@
+.git/
+.cache/
+.local/
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+target/
+coverage/
+test-results/
+playwright-report/
+*.log
+.DS_Store
+Thumbs.db
+.idea/

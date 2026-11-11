@@ -1,0 +1,60 @@
+spring:
+  application:
+    name: firecrawl-api
+  main:
+    banner-mode: "off"
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    hikari:
+      maximum-pool-size: 4
+      minimum-idle: 1
+      connection-timeout: 2000
+      validation-timeout: 1000
+  flyway:
+    clean-disabled: true
+    validate-on-migrate: true
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+      accept-float-as-int: false
+    mapper:
+      allow-coercion-of-scalars: false
+  mvc:
+    problemdetails:
+      enabled: true
+
+server:
+  port: 8080
+  shutdown: graceful
+  error:
+    include-message: never
+    include-stacktrace: never
+  tomcat:
+    threads:
+      max: 12
+      min-spare: 2
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState,db,schema
+  tracing:
+    sampling:
+      probability: 1.0
+
+logging:
+  structured:
+    format:
+      console: ecs

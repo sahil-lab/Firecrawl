@@ -1,0 +1,22 @@
+{
+  "name": "firecrawl-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": ["apps/web"],
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=11 <12"
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "npm run lint --workspace @firecrawl/web",
+    "test": "npm run test --workspace @firecrawl/web",
+    "build": "npm run build --workspace @firecrawl/web",
+    "smoke": "node --test tests/e2e/smoke.test.mjs"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2"
+  }
+}

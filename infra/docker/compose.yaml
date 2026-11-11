@@ -1,0 +1,156 @@
+name: firecrawl
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: firecrawl
+      POSTGRES_USER: firecrawl
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U firecrawl -d firecrawl"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    mem_limit: 256m
+    cpus: 0.25
+    pids_limit: 100
+    security_opt:
+      - no-new-privileges:true
+    logging: &bounded-logs
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  api:
+    image: firecrawl-api:local
+    build:
+      context: ../..
+      dockerfile: services/api/Dockerfile
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/firecrawl
+      DB_USER: firecrawl
+      SPRING_CONFIG_IMPORT: configtree:/run/secrets/
+      JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=55.0 -XX:InitialRAMPercentage=15.0 -XX:ActiveProcessorCount=2
+    secrets:
+      - source: db_password
+        target: spring.datasource.password
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "-q",
+          "-O",
+          "/dev/null",
+          "http://127.0.0.1:8080/actuator/health/readiness",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+    mem_limit: 512m
+    cpus: 0.5
+    pids_limit: 150
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging: *bounded-logs
+
+  web:
+    image: firecrawl-web:local
+    build:
+      context: ../..
+      dockerfile: apps/web/Dockerfile
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:18101:8080"
+    networks:
+      - frontend
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+    mem_limit: 64m
+    cpus: 0.25
+    pids_limit: 30
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging: *bounded-logs
+
+  node:
+    image: node:24-alpine
+    profiles: ["tools"]
+    working_dir: /workspace
+    volumes:
+      - ../..:/workspace
+    environment:
+      npm_config_cache: /workspace/.cache/npm
+      NODE_OPTIONS: --max-old-space-size=640
+    networks:
+      - frontend
+    mem_limit: 1g
+    cpus: 1.0
+    pids_limit: 150
+    init: true
+    logging: *bounded-logs
+
+  maven:
+    image: maven:3.9.11-eclipse-temurin-21
+    profiles: ["tools"]
+    working_dir: /workspace/services/api
+    volumes:
+      - ../..:/workspace
+    environment:
+      MAVEN_OPTS: -Xmx384m -XX:ActiveProcessorCount=2
+    command:
+      [
+        "mvn",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-Dmaven.repo.local=/workspace/.cache/maven",
+        "verify",
+      ]
+    mem_limit: 1g
+    cpus: 1.0
+    pids_limit: 150
+    init: true
+    logging: *bounded-logs
+
+volumes:
+  postgres_data:
+
+networks:
+  backend:
+    internal: true
+  frontend:
+
+secrets:
+  db_password:
+    file: ../../.local/db-password.txt

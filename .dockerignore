@@ -1,0 +1,11 @@
+.git
+.cache
+.local
+.env
+.env.*
+**/node_modules
+**/coverage
+**/*.log
+**/*.pdf
+services/api/target/*
+!services/api/target/api.jar
