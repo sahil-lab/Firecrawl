@@ -134,6 +134,8 @@ class CrawlValidationControllerTest {
         "null",
         "[]",
         "{\"url\":123,\"maxPages\":10,\"termsAccepted\":true}",
+        "{\"url\":1.5,\"maxPages\":10,\"termsAccepted\":true}",
+        "{\"url\":true,\"maxPages\":10,\"termsAccepted\":true}",
         "{\"url\":\"https://example.test/\",\"maxPages\":\"10\",\"termsAccepted\":true}",
         "{\"url\":\"https://example.test/\",\"maxPages\":1.5,\"termsAccepted\":true}",
         "{\"url\":\"https://example.test/\",\"maxPages\":10,\"termsAccepted\":\"true\"}",

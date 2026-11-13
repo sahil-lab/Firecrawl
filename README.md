@@ -6,7 +6,7 @@ private architecture.
 
 ## Current scope
 
-**Phase 0 and Phase 1 only.** The target deliverable is a React/TypeScript
+**Phase 0 and Phase 1 only.** The implemented skeleton includes a React/TypeScript
 dashboard, Java 21/Spring Boot 3 API, PostgreSQL migration, health checks,
 side-effect-free crawl-request validation, and reproducible local tests.
 
@@ -26,8 +26,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 The verification script initializes an untracked local database credential, runs
 formatting checks, Java and frontend tests/builds, builds the runtime images,
 starts the stack, and runs a real HTTP smoke test. It leaves the local stack up.
-See [the evidence log](docs/EVIDENCE.md) for the actual execution status; these
-instructions are not a claim that verification has already passed.
+Verification briefly stops only Firecrawl's database to check readiness failure
+and restores it in a `finally` block; the persisted volume is never deleted.
+The documented verification command passed locally: 43 backend tests, 6 UI tests,
+8 real HTTP checks, production builds, and database migration/restart checks.
+See [the evidence log](docs/EVIDENCE.md) for exact commands, resolved failures,
+changed files, and the remaining interactive-browser tooling limitation.
 
 Open <http://localhost:18101>. The API is available through the same origin under
 `/api`. Port 18201 is reserved but **not published**. PostgreSQL has no host port.
@@ -59,6 +63,11 @@ This demonstrates the Phase 1 contract only, not the full product or benchmarks.
 - The first run downloads public container images and Maven/npm dependencies.
   Tooling is capped at 1 CPU/1 GiB and runs sequentially; allow extra time on a
   busy shared Docker host.
+- Node dependencies live in the project-scoped `firecrawl_node_modules` Docker
+  volume, not on the slow Windows source bind mount. Keep using container tooling;
+  do not run host npm against this workspace.
+- Maven's local repository uses the project-scoped `firecrawl_maven_cache` volume
+  for the same reason. Authored source and build outputs remain in this folder.
 - If port 18101 is occupied, identify its owner. Do not stop other projects or
   silently use a different port.
 - Inspect only this project's API/database logs with the Compose commands above.
@@ -90,3 +99,7 @@ pages were read before implementation.
 Git initialization, commits, remotes, pushes, and deployment are not authorized
 for this project. CI configuration is provided locally, but no hosted CI run is
 implied.
+
+The final read-only check found Git metadata that was absent at the initial
+inventory. This session ran no `git init`, commit, remote, or push commands.
+The metadata's origin/approval is unverified; it was preserved without changes.

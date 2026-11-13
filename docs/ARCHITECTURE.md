@@ -15,34 +15,37 @@ flowchart LR
 The Compose project is always `firecrawl`. The web service is the only published
 service. Port 18201 is reserved but unused. API and PostgreSQL share an internal
 network with no external egress; nginx also attaches to a frontend network.
-The database has an isolated project-named volume. No Redis, Kafka, workers,
-browser processes, or telemetry collectors run at this stage.
+The database has an isolated project-named volume. Generated Node dependencies
+use a separate `firecrawl_node_modules` volume; Maven artifacts use
+`firecrawl_maven_cache`. These avoid slow Windows dependency-cache I/O; all
+authored source remains in the project folder. No Redis, Kafka,
+workers, browser processes, or telemetry collectors run at this stage.
 
 The API does not contain an HTTP-fetch or job-execution implementation.
 
 ## Repository boundaries
 
-| Path                   | Responsibility                                         |
-| ---------------------- | ------------------------------------------------------ |
-| `apps/web`             | React/TypeScript UI and component tests                 |
-| `services/api`         | Spring Boot API, validation, health, migration, tests   |
-| `services/worker`      | Documented reservation for Phase 3; no runnable service |
-| `packages/contracts`   | OpenAPI for implemented Phase 1 routes                 |
-| `infra/docker`         | Compose, nginx, bounded local/container tooling         |
-| `tests/e2e`            | Real stack HTTP smoke tests using synthetic inputs     |
-| `benchmarks`           | Future benchmark boundary; no fabricated measurements   |
-| `scripts`              | Windows-compatible local setup and verification        |
-| `docs`                | Requirements, safety, decisions, plan, execution proof  |
+| Path                 | Responsibility                                          |
+| -------------------- | ------------------------------------------------------- |
+| `apps/web`           | React/TypeScript UI and component tests                 |
+| `services/api`       | Spring Boot API, validation, health, migration, tests   |
+| `services/worker`    | Documented reservation for Phase 3; no runnable service |
+| `packages/contracts` | OpenAPI for implemented Phase 1 routes                  |
+| `infra/docker`       | Compose, nginx, bounded local/container tooling         |
+| `tests/e2e`          | Real stack HTTP smoke tests using synthetic inputs      |
+| `benchmarks`         | Future benchmark boundary; no fabricated measurements   |
+| `scripts`            | Windows-compatible local setup and verification         |
+| `docs`               | Requirements, safety, decisions, plan, execution proof  |
 
 ## Interfaces
 
 nginx removes the `/api` prefix before proxying to the API:
 
-| Backend route                          | Behavior                                               |
-| -------------------------------------- | ------------------------------------------------------ |
-| `GET /actuator/health/liveness`         | Process liveness, independent of database availability  |
-| `GET /actuator/health/readiness`        | Requires readiness state, PostgreSQL, and schema V1     |
-| `POST /crawl-jobs/validate`             | Validates a candidate request; no persistence or fetch  |
+| Backend route                    | Behavior                                               |
+| -------------------------------- | ------------------------------------------------------ |
+| `GET /actuator/health/liveness`  | Process liveness, independent of database availability |
+| `GET /actuator/health/readiness` | Requires readiness state, PostgreSQL, and schema V1    |
+| `POST /crawl-jobs/validate`      | Validates a candidate request; no persistence or fetch |
 
 Actuator exposes health only, with no sensitive detail in public responses.
 The future playbook routes `GET /crawl-jobs`, `POST /crawl-jobs`, and

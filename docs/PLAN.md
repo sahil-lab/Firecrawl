@@ -7,19 +7,30 @@
 - [x] Write requirements, architecture diagram, threat model, non-goals,
       acceptance criteria, decisions, and coding conventions.
 - [x] Add ignore rules and local CI workflow.
-- [ ] Record final verification evidence and file inventory.
-- [ ] Git initialization: **not authorized**, deliberately not performed.
+- [x] Record final verification evidence and file inventory.
+- [ ] Resolve Git provenance/approval: no `git init` was run by this session.
+      Unexpected metadata appeared after the initial inventory and was preserved
+      without changes; its origin/approval is unverified.
 
 ## Phase 1 - Working skeleton
 
-- [ ] Bootstrap Java 21 / Spring Boot 3 API and React / TypeScript dashboard.
-- [ ] Bootstrap PostgreSQL and bounded, project-isolated Docker Compose.
-- [ ] Add Flyway migration and liveness/schema-aware readiness endpoints.
-- [ ] Add strict, side-effect-free request validation and explicit UI errors.
-- [ ] Add backend/frontend tests and real-stack HTTP smoke coverage.
-- [ ] Run formatting checks, builds, tests, migration/restart checks, and browser
-      validation; fix failures before marking complete.
-- [ ] Persist exact commands, observed results, limitations, and next steps.
+- [x] Bootstrap Java 21 / Spring Boot 3 API and React / TypeScript dashboard.
+- [x] Bootstrap PostgreSQL and bounded, project-isolated Docker Compose.
+- [x] Add Flyway migration and liveness/schema-aware readiness endpoints.
+- [x] Add strict, side-effect-free request validation and explicit UI errors.
+- [x] Add backend/frontend tests and real-stack HTTP smoke coverage.
+- [x] Run formatting, builds, tests, database outage/recovery, and migration/restart
+      checks. The complete verification script exited successfully.
+- [x] Verify the real dashboard renders and displays API/database readiness.
+- [x] Persist exact commands, observed results, limitations, and next steps.
+- [ ] Complete interactive browser automation: browser tools lost page handles
+      and timed out on clicks. No interactive or responsive visual-test pass is
+      claimed. The six component tests and eight real HTTP tests pass; the
+      README provides a manual walkthrough.
+
+Implementation remains within Phase 0/1. Git actions remain approval-gated,
+and the Git provenance and browser automation limitations remain explicit above.
+See [execution evidence](EVIDENCE.md).
 
 ## Phase 2 - Next, not authorized in this delivery
 

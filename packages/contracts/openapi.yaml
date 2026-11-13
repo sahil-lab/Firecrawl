@@ -14,19 +14,19 @@ paths:
       operationId: getLiveness
       summary: Process liveness
       responses:
-        "200":
-          $ref: "#/components/responses/Healthy"
-        "503":
-          $ref: "#/components/responses/Unhealthy"
+        '200':
+          $ref: '#/components/responses/Healthy'
+        '503':
+          $ref: '#/components/responses/Unhealthy'
   /actuator/health/readiness:
     get:
       operationId: getReadiness
       summary: Readiness requiring PostgreSQL and migration V1
       responses:
-        "200":
-          $ref: "#/components/responses/Healthy"
-        "503":
-          $ref: "#/components/responses/Unhealthy"
+        '200':
+          $ref: '#/components/responses/Healthy'
+        '503':
+          $ref: '#/components/responses/Unhealthy'
   /crawl-jobs/validate:
     post:
       operationId: validateCrawlRequest
@@ -36,9 +36,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CrawlValidationRequest"
+              $ref: '#/components/schemas/CrawlValidationRequest'
       responses:
-        "200":
+        '200':
           description: Valid input; execution remains disabled
           content:
             application/json:
@@ -53,15 +53,15 @@ paths:
                   executionEnabled:
                     type: boolean
                     enum: [false]
-        "400":
+        '400':
           description: Invalid fields or malformed/unknown/coerced input
           content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/Problem"
-        "413":
+                $ref: '#/components/schemas/Problem'
+        '413':
           description: Request exceeds the local proxy's 8 KiB body limit
-        "415":
+        '415':
           description: Unsupported media type; send application/json
 components:
   schemas:
@@ -120,10 +120,10 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Health"
+            $ref: '#/components/schemas/Health'
     Unhealthy:
       description: Unhealthy; investigate project-scoped service logs
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Health"
+            $ref: '#/components/schemas/Health'

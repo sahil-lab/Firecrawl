@@ -13,20 +13,20 @@ of production readiness. Phase 1 operates on synthetic input only.
 
 ## Threats, controls, and verification
 
-| Threat                                | Phase 0/1 control                                          | Verification / remaining boundary                       |
-| ------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------- |
-| SSRF or accidental target-site access  | Validation has no fetch/execution path; API has no egress.  | Synthetic URL validation succeeds without DNS; Phase 3 must validate DNS, redirects, and private networks. |
-| Credentials embedded in submitted URL | HTTP(S) URL validator rejects user info.                    | Validator and controller tests.                         |
-| Unauthorized crawling                 | No job creation/execution endpoints; explicit UI notice.   | Smoke checks future routes do not succeed.               |
-| Misleading permission acknowledgment   | `termsAccepted` is required but not represented as policy enforcement. | UI/docs distinguish intent from verified permission. |
-| Invalid or excessive input            | Bean validation, strict JSON types/fields, 8 KiB proxy body limit. | Controller and smoke rejection cases.                |
-| Error/log data disclosure              | Sanitized problem responses; no raw bodies/URLs in logs.   | Tests assert rejected values and parser errors stay out. |
-| Credential leakage                    | Generated untracked file, Docker secrets, excluded build context. | Configuration inspection; no password printed.       |
-| Database exposure                     | No host port; internal project network; non-default local credential. | Compose/container inspection.                        |
-| Browser injection/framing             | React text rendering, CSP, nosniff, referrer and frame restrictions. | Component tests and HTTP header assertions.          |
-| Cross-project interference            | Fixed Compose project, reserved loopback port, bounded resources. | Inspect labels, port bindings and limits.            |
-| Destructive schema operations         | Additive Flyway migration; clean disabled; no auto-reset.  | Fresh startup/restart and migration history check.       |
-| Premature production use              | No public binding, no claims of auth/TLS/HA or production readiness. | README and explicit phase limits.                    |
+| Threat                                | Phase 0/1 control                                                      | Verification / remaining boundary                                                                          |
+| ------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| SSRF or accidental target-site access | Validation has no fetch/execution path; API has no egress.             | Synthetic URL validation succeeds without DNS; Phase 3 must validate DNS, redirects, and private networks. |
+| Credentials embedded in submitted URL | HTTP(S) URL validator rejects user info.                               | Validator and controller tests.                                                                            |
+| Unauthorized crawling                 | No job creation/execution endpoints; explicit UI notice.               | Smoke checks future routes do not succeed.                                                                 |
+| Misleading permission acknowledgment  | `termsAccepted` is required but not represented as policy enforcement. | UI/docs distinguish intent from verified permission.                                                       |
+| Invalid or excessive input            | Bean validation, strict JSON types/fields, 8 KiB proxy body limit.     | Controller and smoke rejection cases.                                                                      |
+| Error/log data disclosure             | Sanitized problem responses; no raw bodies/URLs in logs.               | Tests assert rejected values and parser errors stay out.                                                   |
+| Credential leakage                    | Generated untracked file, Docker secrets, excluded build context.      | Configuration inspection; no password printed.                                                             |
+| Database exposure                     | No host port; internal project network; non-default local credential.  | Compose/container inspection.                                                                              |
+| Browser injection/framing             | React text rendering, CSP, nosniff, referrer and frame restrictions.   | Component tests and HTTP header assertions.                                                                |
+| Cross-project interference            | Fixed Compose project, reserved loopback port, bounded resources.      | Inspect labels, port bindings and limits.                                                                  |
+| Destructive schema operations         | Additive Flyway migration; clean disabled; no auto-reset.              | Fresh startup/restart and migration history check.                                                         |
+| Premature production use              | No public binding, no claims of auth/TLS/HA or production readiness.   | README and explicit phase limits.                                                                          |
 
 ## Important limitations
 

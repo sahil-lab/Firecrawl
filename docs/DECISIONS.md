@@ -33,6 +33,11 @@ are resource-limited; compilation/tests run in sequential bounded containers.
 Runtime images copy compiled artifacts so Java/Node compilation is not hidden
 inside unbounded Docker build steps.
 
+Both tooling containers reuse the frontend network. Only two networks are needed;
+this avoids consuming an extra subnet from the shared Docker address pool. An
+unused Firecrawl-only default network was removed after verifying its ownership
+and zero attached containers. No global network pruning was performed.
+
 ## D005 - Explicit errors and conservative credential handling
 
 Use standard problem responses for invalid requests and explicit failure states
@@ -44,7 +49,9 @@ overwrite an existing credential or automatically reset a persisted database.
 
 The filesystem monorepo and local CI configuration can be created without
 `.git`. The approval given for Replicas does not apply here. No Git
-initialization, commit, remote, push, or hosted CI execution is performed.
+initialization, commit, remote, push, or hosted CI execution was performed by this
+session. A final read-only check nevertheless found Git metadata that was absent
+at the initial inventory. Its origin/approval is unverified; it was left untouched.
 
 ## D007 - Tooling and dependency reproducibility
 
@@ -57,3 +64,17 @@ Container image major/LTS tags receive upstream patch updates. Record the actual
 versions/digests used in the evidence log; immutable production promotion is a
 future deployment concern. Dependency downloads do not send project source to a
 third-party service.
+
+## D008 - Keep generated dependencies on the container filesystem
+
+The first clean npm restore spent excessive time extracting cached packages onto
+the Windows bind mount. Use a project-scoped `firecrawl_node_modules` Docker
+volume for generated dependencies, with `nocopy` so partially restored host files
+are not imported. Keep authored source, lockfiles, artifacts, and documentation
+in the project folder. CPU/memory limits and sequential verification are unchanged.
+
+A later Java thread dump showed Maven blocked in `FileDescriptor.close0` while
+reading dependency POMs on the Windows bind mount. Maven's local repository also
+uses a project-scoped `firecrawl_maven_cache` volume. Existing public dependency
+artifacts were copied locally into that volume; no global cache or host runtime
+was changed.

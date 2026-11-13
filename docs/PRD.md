@@ -44,18 +44,18 @@ fields are rejected. Unsupported media types receive HTTP 415.
 
 ## Measurable acceptance criteria
 
-| ID   | Acceptance criterion                                                               | Evidence method                      |
-| ---- | ---------------------------------------------------------------------------------- | ------------------------------------ |
-| P0-1 | Requirements, architecture, threats, decisions, non-goals, plan, and CI are present. | Document/configuration inspection    |
-| P1-1 | Java 21/Spring Boot 3 API and React/TypeScript production builds succeed.             | Maven verify and frontend build      |
-| P1-2 | The dashboard is served only on loopback port 18101.                                 | Compose config and real host request |
-| P1-3 | A fresh PostgreSQL database applies migration V1 once and remains ready on restart. | Schema-aware readiness and SQL check |
-| P1-4 | Liveness is HTTP 200 for a running API; readiness requires the database and schema.  | Health tests and runtime smoke       |
-| P1-5 | Valid synthetic input succeeds without fetching a target or creating a job.         | Controller tests and HTTP smoke      |
-| P1-6 | Invalid, missing, malformed, and unknown input is rejected with explicit errors.     | Parameterized/controller/HTTP tests  |
-| P1-7 | The UI shows readiness, validation success, field errors, and network failure.       | Component tests and browser check    |
+| ID   | Acceptance criterion                                                                  | Evidence method                       |
+| ---- | ------------------------------------------------------------------------------------- | ------------------------------------- |
+| P0-1 | Requirements, architecture, threats, decisions, non-goals, plan, and CI are present.  | Document/configuration inspection     |
+| P1-1 | Java 21/Spring Boot 3 API and React/TypeScript production builds succeed.             | Maven verify and frontend build       |
+| P1-2 | The dashboard is served only on loopback port 18101.                                  | Compose config and real host request  |
+| P1-3 | A fresh PostgreSQL database applies migration V1 once and remains ready on restart.   | Schema-aware readiness and SQL check  |
+| P1-4 | Liveness is HTTP 200 for a running API; readiness requires the database and schema.   | Health tests and runtime smoke        |
+| P1-5 | Valid synthetic input succeeds without fetching a target or creating a job.           | Controller tests and HTTP smoke       |
+| P1-6 | Invalid, missing, malformed, and unknown input is rejected with explicit errors.      | Parameterized/controller/HTTP tests   |
+| P1-7 | The UI shows readiness, validation success, field errors, and network failure.        | Component tests and browser check     |
 | P1-8 | No database/API host ports, real data, cloud actions, or crawl execution are enabled. | Compose contract and smoke assertions |
-| P1-9 | All active services and compilation/test containers have CPU/memory/PID limits.      | Compose config and container inspect |
+| P1-9 | All active services and compilation/test containers have CPU/memory/PID limits.       | Compose config and container inspect  |
 
 ## Non-goals and later acceptance targets
 

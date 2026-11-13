@@ -3,8 +3,8 @@ $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $ComposeFile = Join-Path (Join-Path (Join-Path $ProjectRoot 'infra') 'docker') 'compose.yaml'
 
 function Invoke-Compose {
-    param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
-    & docker compose --project-name firecrawl --file $ComposeFile @Arguments
+    # Preserve native flags such as psql -A instead of binding PowerShell parameters.
+    & docker compose --project-name firecrawl --file $ComposeFile @args
     if ($LASTEXITCODE -ne 0) {
         throw "Firecrawl Compose command failed with exit code $LASTEXITCODE."
     }
@@ -31,6 +31,14 @@ Invoke-Compose build web
 Invoke-Compose up --detach --wait --wait-timeout 240 db api web
 Invoke-Compose --profile tools run --rm --no-deps --env BASE_URL=http://web:8080 node npm run smoke
 
+Invoke-Compose stop db
+try {
+    Invoke-Compose --profile tools run --rm --no-deps --env BASE_URL=http://web:8080 node npm run smoke:db-down
+}
+finally {
+    Invoke-Compose up --detach --wait --wait-timeout 120 db api web
+}
+
 $MigrationCount = Invoke-Compose exec -T db psql -U firecrawl -d firecrawl -t -A -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM flyway_schema_history WHERE version = '1' AND success;"
 if (($MigrationCount -join '').Trim() -ne '1') {
     throw 'Expected exactly one successful Flyway V1 migration.'
@@ -42,7 +50,7 @@ if (($MigrationCount -join '').Trim() -ne '1') {
     throw 'Flyway migration history changed unexpectedly after API restart.'
 }
 
-$HostResponse = Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:18101/api/actuator/health/readiness' -TimeoutSec 15
+$HostResponse = Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:18101/api/actuator/health/readiness' -Headers @{ Accept = 'application/json' } -TimeoutSec 15
 if ($HostResponse.StatusCode -ne 200 -or ($HostResponse.Content | ConvertFrom-Json).status -ne 'UP') {
     throw 'The published loopback endpoint is not ready.'
 }

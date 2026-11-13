@@ -25,7 +25,9 @@ describe('Phase 1 dashboard', () => {
     await user.click(screen.getByRole('button', { name: 'Validate request' }));
 
     expect(await screen.findByText('Request is valid.')).toBeVisible();
-    expect(screen.getByText('Execution is disabled. No URL was fetched and no job was created.')).toBeVisible();
+    expect(
+      screen.getByText('Execution is disabled. No URL was fetched and no job was created.'),
+    ).toBeVisible();
     expect(fetchMock).toHaveBeenLastCalledWith(
       '/api/crawl-jobs/validate',
       expect.objectContaining({
@@ -44,15 +46,21 @@ describe('Phase 1 dashboard', () => {
   it('displays API field errors and allows correction', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn<typeof fetch>()
+      vi
+        .fn<typeof fetch>()
         .mockResolvedValueOnce(json({ status: 'UP' }))
-        .mockResolvedValueOnce(json({
-          detail: 'Correct the indicated fields.',
-          errors: {
-            termsAccepted: ['Permission acknowledgment is required.'],
-            maxPages: ['Page budget must be at most 100.'],
-          },
-        }, 400)),
+        .mockResolvedValueOnce(
+          json(
+            {
+              detail: 'Correct the indicated fields.',
+              errors: {
+                termsAccepted: ['Permission acknowledgment is required.'],
+                maxPages: ['Page budget must be at most 100.'],
+              },
+            },
+            400,
+          ),
+        ),
     );
     const user = userEvent.setup();
     render(<App />);
@@ -71,7 +79,8 @@ describe('Phase 1 dashboard', () => {
   it('surfaces unavailable readiness and can retry successfully', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn<typeof fetch>()
+      vi
+        .fn<typeof fetch>()
         .mockRejectedValueOnce(new TypeError('Synthetic network failure'))
         .mockResolvedValueOnce(json({ status: 'UP' })),
     );
@@ -86,12 +95,19 @@ describe('Phase 1 dashboard', () => {
 
   it.each([
     { kind: 'network', result: () => Promise.reject(new TypeError('Synthetic network failure')) },
-    { kind: 'unexpected JSON', result: () => Promise.resolve(json({ valid: true, executionEnabled: true })) },
-    { kind: 'non-JSON proxy failure', result: () => Promise.resolve(new Response('Bad Gateway', { status: 502 })) },
+    {
+      kind: 'unexpected JSON',
+      result: () => Promise.resolve(json({ valid: true, executionEnabled: true })),
+    },
+    {
+      kind: 'non-JSON proxy failure',
+      result: () => Promise.resolve(new Response('Bad Gateway', { status: 502 })),
+    },
   ])('does not report validation success on $kind', async ({ result }) => {
     vi.stubGlobal(
       'fetch',
-      vi.fn<typeof fetch>()
+      vi
+        .fn<typeof fetch>()
         .mockResolvedValueOnce(json({ status: 'UP' }))
         .mockImplementationOnce(result),
     );
@@ -102,6 +118,8 @@ describe('Phase 1 dashboard', () => {
 
     expect(await screen.findByRole('alert')).toBeVisible();
     expect(screen.queryByText('Request is valid.')).not.toBeInTheDocument();
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Validate request' })).toBeEnabled());
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Validate request' })).toBeEnabled(),
+    );
   });
 });

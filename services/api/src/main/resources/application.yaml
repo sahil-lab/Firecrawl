@@ -2,7 +2,7 @@ spring:
   application:
     name: firecrawl-api
   main:
-    banner-mode: "off"
+    banner-mode: 'off'
   datasource:
     url: ${DB_URL}
     username: ${DB_USER}

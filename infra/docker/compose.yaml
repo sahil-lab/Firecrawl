@@ -14,7 +14,7 @@ services:
     networks:
       - backend
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U firecrawl -d firecrawl"]
+      test: ['CMD-SHELL', 'pg_isready -U firecrawl -d firecrawl']
       interval: 5s
       timeout: 3s
       retries: 20
@@ -27,8 +27,8 @@ services:
     logging: &bounded-logs
       driver: json-file
       options:
-        max-size: "5m"
-        max-file: "2"
+        max-size: '5m'
+        max-file: '2'
 
   api:
     image: firecrawl-api:local
@@ -50,14 +50,7 @@ services:
       - backend
     healthcheck:
       test:
-        [
-          "CMD",
-          "wget",
-          "-q",
-          "-O",
-          "/dev/null",
-          "http://127.0.0.1:8080/actuator/health/readiness",
-        ]
+        ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:8080/actuator/health/readiness']
       interval: 5s
       timeout: 3s
       retries: 30
@@ -83,12 +76,12 @@ services:
       api:
         condition: service_healthy
     ports:
-      - "127.0.0.1:18101:8080"
+      - '127.0.0.1:18101:8080'
     networks:
       - frontend
       - backend
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/healthz"]
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:8080/healthz']
       interval: 5s
       timeout: 3s
       retries: 15
@@ -106,10 +99,15 @@ services:
 
   node:
     image: node:24-alpine
-    profiles: ["tools"]
+    profiles: ['tools']
     working_dir: /workspace
     volumes:
       - ../..:/workspace
+      - type: volume
+        source: node_modules
+        target: /workspace/node_modules
+        volume:
+          nocopy: true
     environment:
       npm_config_cache: /workspace/.cache/npm
       NODE_OPTIONS: --max-old-space-size=640
@@ -123,19 +121,26 @@ services:
 
   maven:
     image: maven:3.9.11-eclipse-temurin-21
-    profiles: ["tools"]
+    profiles: ['tools']
     working_dir: /workspace/services/api
     volumes:
       - ../..:/workspace
+      - type: volume
+        source: maven_cache
+        target: /workspace/.cache/maven
+        volume:
+          nocopy: true
     environment:
       MAVEN_OPTS: -Xmx384m -XX:ActiveProcessorCount=2
+    networks:
+      - frontend
     command:
       [
-        "mvn",
-        "--batch-mode",
-        "--no-transfer-progress",
-        "-Dmaven.repo.local=/workspace/.cache/maven",
-        "verify",
+        'mvn',
+        '--batch-mode',
+        '--no-transfer-progress',
+        '-Dmaven.repo.local=/workspace/.cache/maven',
+        'verify',
       ]
     mem_limit: 1g
     cpus: 1.0
@@ -145,6 +150,8 @@ services:
 
 volumes:
   postgres_data:
+  node_modules:
+  maven_cache:
 
 networks:
   backend:

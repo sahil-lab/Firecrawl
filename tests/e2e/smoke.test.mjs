@@ -93,16 +93,24 @@ test('rejects missing fields, unknown properties, malformed JSON and coercion', 
 
 test('rejects wrong media types and oversized bodies', async () => {
   assert.equal((await post('synthetic', 'text/plain')).status, 415);
-  assert.equal((await post({ ...validRequest, url: `https://example.test/${'a'.repeat(9_000)}` })).status, 413);
+  assert.equal(
+    (await post({ ...validRequest, url: `https://example.test/${'a'.repeat(9_000)}` })).status,
+    413,
+  );
 });
 
 test('later-phase crawl-job routes and sensitive actuator endpoints do not succeed', async () => {
   for (const path of ['/api/crawl-jobs', '/api/crawl-jobs/synthetic', '/api/actuator/env']) {
     assert.equal((await request(path)).status, 404);
   }
-  assert.equal((await request('/api/crawl-jobs', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(validRequest),
-  })).status, 404);
+  assert.equal(
+    (
+      await request('/api/crawl-jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(validRequest),
+      })
+    ).status,
+    404,
+  );
 });
