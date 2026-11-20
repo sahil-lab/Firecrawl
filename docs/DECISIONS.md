@@ -54,6 +54,19 @@ initialization, commit, remote, push, or hosted CI execution was performed by th
 session. A final read-only check nevertheless found Git metadata that was absent
 at the initial inventory. Its origin/approval is unverified; it was left untouched.
 
+On 2026-11-20 the owner asked for the work to be pushed to GitHub. By then the
+project was published as `sahil-lab/Firecrawl`, with two commits made under the
+owner's account on 2026-11-12 and 2026-11-13, which is consistent with the
+metadata found at the end of the first session. The working folder was a copy
+of that repository's `main` without `.git`. The folder was made a repository on
+that history, the work done since was added as one ordinary commit, and it was
+pushed as a fast-forward: nothing was rewritten or force-pushed. Identity and
+line-ending settings were set for this repository only. The request was read as
+covering that commit and a second one that records the publication. Other Git
+actions (branches, tags, releases, changes to history or to the repository's
+settings) and any deployment are still asked for first. The
+[evidence log](EVIDENCE.md) has the details.
+
 ## D007 - Tooling and dependency reproducibility
 
 Use npm's lockfile for the frontend/tooling and Maven's managed dependency graph

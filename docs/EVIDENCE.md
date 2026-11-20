@@ -12,6 +12,51 @@
 - Reserved ports 18101/18201 were free; no `firecrawl` containers existed.
 - Maven Central metadata resolved Spring Boot **3.5.16**.
 
+## Publication to GitHub - 2026-11-20
+
+At 16:15 on 2026-11-20 the project owner asked for the work to be pushed to
+GitHub. Times here are local (UTC+05:30).
+
+- **Starting state.** The project folder was not a Git repository. It sits next
+  to an archive named `Firecrawl-main.zip`, and the `gh` command line was signed
+  in to github.com as `sahil-lab`, who owns the public repository
+  <https://github.com/sahil-lab/Firecrawl>. That repository had one unprotected
+  branch, `main`, with two commits under that account: `1f8ac25` "Initial
+  project import" (2026-11-12) and `e0560de` "Update project implementation and
+  UI" (2026-11-13). The working files matched `e0560de` except for the 50 files
+  listed in the two update records below: 15 modified, 35 new, none removed.
+- **What was done.** `git init` in the project folder, the repository added as
+  `origin` and fetched, and the new `main` pointed at `origin/main` without
+  touching the working files, which were then compared with a copy taken
+  beforehand (92 files, none different). The author identity of the existing
+  commits and `core.autocrlf=false` (every source file uses LF, which the
+  formatter expects) were set for this repository only. No global Git setting or
+  stored credential was changed; the push authenticated through the existing
+  `gh` sign-in.
+- **Before committing.** The files to be published contained no access-token or
+  private-key patterns, and the value of the generated database credential
+  appeared in none of them. `.local`, `.cache`, `node_modules`, `dist`, and
+  `target` are ignored, and nothing under them is tracked.
+- **Commit and push.** One commit, `2b94826` "Redesign dashboard with a WebGL
+  landscape scene and pin Node 22" (50 files, 7,037 insertions, 545 deletions),
+  was pushed at 16:42 as a fast-forward of `main` from `e0560de`. Nothing was
+  force-pushed, and no branch, tag, release, or pull request was created.
+- **Hosted CI.** The push started run 44725691109 of the "Firecrawl skeleton"
+  workflow, which runs `scripts/verify.ps1` on a GitHub-hosted `ubuntu-latest`
+  runner. Its one job succeeded in 2 min 52 s. The log shows `npm ci` restoring
+  257 packages, the formatting check, 43 backend tests, 9 UI tests, a 41-module
+  build with the same asset names as the local one (`index-Ca_CdfdJ.js` and
+  `index-CTKWAGHS.css`), 7 + 1 HTTP smoke tests, and the script's final line.
+- **Earlier hosted runs.** The records below say hosted CI was not run, which
+  describes what those sessions did. The repository's Actions history shows that
+  the same workflow had run twice before, on the pushes of the two earlier
+  commits: it ended in failure 14 s after it started for `1f8ac25`, and
+  succeeded in 2 min 32 s for `e0560de`. Neither run was observed when it
+  happened, and the failed run's log was not read.
+- This section, and the wording about Git in the README, the plan, and decision
+  D006, were added in a second commit pushed afterwards. The hosted run for that
+  commit is not recorded here.
+
 ## Verified outcome - 2026-11-20: landscape scene
 
 The project owner asked for a far more striking interface. The flat contour
@@ -45,7 +90,9 @@ Firecrawl verification passed. Local dashboard: http://localhost:18101
 
 The automated checks now comprise **43 backend + 9 UI + 8 real HTTP tests**.
 For scale, the interface of 2026-11-18 built to JS 252.13 kB (79.21 kB gzip)
-and CSS 32.64 kB (7.80 kB gzip).
+and CSS 32.64 kB (7.80 kB gzip). The "Hosted CI" row describes the moment of
+that run; the push that followed, and the hosted run it started, are recorded
+under "Publication to GitHub" above.
 
 That run was made before this section was written. Afterwards the documents
 were formatted and `npm run format:check` passed again. No file under `apps/`

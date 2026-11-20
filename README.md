@@ -109,10 +109,8 @@ The source playbook is
 [01_Firecrawl_Adaptive_Crawler.pdf](01_Firecrawl_Adaptive_Crawler.pdf). All three
 pages were read before implementation.
 
-Git initialization, commits, remotes, pushes, and deployment are not authorized
-for this project. CI configuration is provided locally, but no hosted CI run is
-implied.
-
-The final read-only check found Git metadata that was absent at the initial
-inventory. This session ran no `git init`, commit, remote, or push commands.
-The metadata's origin/approval is unverified; it was preserved without changes.
+The project is published at <https://github.com/sahil-lab/Firecrawl>, where
+every push runs the verification script on a GitHub-hosted runner
+(`.github/workflows/ci.yml`). Git actions are taken only at the owner's request
+([D006](docs/DECISIONS.md)), and the evidence log records what was pushed and
+what the hosted runs returned. Deployment is not authorized for this project.

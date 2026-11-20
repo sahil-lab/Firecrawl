@@ -8,9 +8,11 @@
       acceptance criteria, decisions, and coding conventions.
 - [x] Add ignore rules and local CI workflow.
 - [x] Record final verification evidence and file inventory.
-- [ ] Resolve Git provenance/approval: no `git init` was run by this session.
-      Unexpected metadata appeared after the initial inventory and was preserved
-      without changes; its origin/approval is unverified.
+- [x] Resolve Git provenance/approval. The first session ran no Git command and
+      found metadata it had not created. The published repository holds two
+      commits made under the owner's account on 2026-11-12 and 2026-11-13,
+      which is consistent with that metadata, and on 2026-11-20 the owner asked
+      for the later work to be pushed (decision D006).
 
 ## Phase 1 - Working skeleton
 
@@ -34,8 +36,8 @@
       by scripts that are not part of this repository. The nine component tests
       and eight real HTTP tests pass; the README provides a manual walkthrough.
 
-Implementation remains within Phase 0/1. Git actions remain approval-gated,
-and the Git provenance and browser-test limitations remain explicit above.
+Implementation remains within Phase 0/1. Git actions remain approval-gated
+(decision D006), and the browser-test limitation remains explicit above.
 See [execution evidence](EVIDENCE.md).
 
 ## Phase 2 - Next, not authorized in this delivery
