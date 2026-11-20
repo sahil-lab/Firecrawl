@@ -1,0 +1,207 @@
+.site-header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 60;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1.5rem;
+  height: var(--header-height);
+  padding: 0 var(--gutter);
+  border-bottom: 1px solid transparent;
+  transition:
+    background-color 0.4s ease,
+    border-color 0.4s ease;
+}
+
+/*
+ * The header's small print is over the scene before the page is scrolled, so the header
+ * always carries a strip of the page's ink that fades out just below it.
+ */
+.site-header::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 -1.5rem;
+  z-index: -1;
+  background: linear-gradient(
+    to bottom,
+    var(--sheet),
+    rgb(8 11 9 / 0.8) calc(100% - 1.5rem),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.site[data-scrolled] .site-header {
+  border-bottom-color: var(--line);
+  background: rgb(8 11 9 / 0.86);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  backdrop-filter: blur(20px) saturate(1.3);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-self: start;
+  min-height: 2.75rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.brand-mark {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.brand-mark-frame {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: square;
+}
+
+.brand-mark-core {
+  fill: var(--accent);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.5s var(--ease-out);
+}
+
+.site-nav {
+  display: flex;
+  gap: clamp(1.25rem, 2.5vw, 2.5rem);
+}
+
+.site-nav a {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.4rem 0;
+  color: var(--paper-dim);
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.site-nav a::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform 0.5s var(--ease-out);
+}
+
+.site-nav-index {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+}
+
+.site-nav a[aria-current] {
+  color: var(--paper);
+}
+
+.site-nav a[aria-current]::after {
+  transform: scaleX(1);
+  transform-origin: 0 50%;
+}
+
+.status-pill {
+  --state-rgb: var(--warn-rgb);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  justify-self: end;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: border-color 0.3s ease;
+}
+
+/* Extends the tap target to 44px without making the pill itself taller. */
+.status-pill::after {
+  content: '';
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 2.75rem;
+  translate: 0 -50%;
+}
+
+.status-pill[data-state='ready'] {
+  --state-rgb: var(--accent-rgb);
+}
+
+.status-pill[data-state='unavailable'] {
+  --state-rgb: var(--danger-rgb);
+}
+
+.status-pill-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: rgb(var(--state-rgb));
+  box-shadow: 0 0 0 0.2rem rgb(var(--state-rgb) / 0.18);
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+@media (hover: hover) {
+  .brand:hover .brand-mark-core {
+    transform: scale(1.35);
+  }
+
+  .site-nav a:hover {
+    color: var(--paper);
+  }
+
+  .site-nav a:hover::after {
+    transform: scaleX(1);
+    transform-origin: 0 50%;
+  }
+
+  .status-pill:hover {
+    border-color: rgb(var(--state-rgb) / 0.7);
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .site-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .site-nav {
+    display: none;
+  }
+}
+
+/*
+ * On the narrowest phones the name and the longest status label do not fit side by side, so
+ * the mark stands alone there, in a link that is still a full 44px square to tap. The link is
+ * named by its label either way.
+ */
+@media (max-width: 23.49rem) {
+  .brand {
+    min-width: 2.75rem;
+  }
+
+  .brand span {
+    display: none;
+  }
+}

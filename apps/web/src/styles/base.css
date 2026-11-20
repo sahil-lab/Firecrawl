@@ -1,0 +1,422 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+  background: var(--ink);
+  scroll-padding-top: var(--header-height);
+  scrollbar-color: rgb(238 242 231 / 0.26) var(--ink);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/*
+ * The selection colours are declared once, on the root, and reach all text through highlight
+ * inheritance. A rule that matched every element instead would give each element highlight
+ * styles of its own, and the browser then restyles an element's children whenever the element
+ * changes. A browser without highlight inheritance keeps its own selection colours.
+ */
+:root::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+dl,
+dd,
+figure,
+pre {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input {
+  color: inherit;
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: wait;
+}
+
+code {
+  font: inherit;
+}
+
+svg {
+  display: block;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.site {
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  border: 0;
+  white-space: nowrap;
+}
+
+.eyebrow,
+.badge {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--paper-dim);
+}
+
+.eyebrow::before {
+  content: '';
+  flex-shrink: 0;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.badge {
+  color: var(--paper-dim);
+  white-space: nowrap;
+}
+
+/*
+ * Chips. A small label that sits on the open scene carries its own patch of the page's ink,
+ * so what moves behind it never reaches its text.
+ */
+.badge,
+.hero-top .eyebrow,
+.section-index,
+.section-note {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--sheet);
+}
+
+/*
+ * Sheets. Body content never sits on the open scene either: it is laid on a panel of the
+ * page's ink. The scene shows around the sheets and in the gaps between them, where only
+ * display type floats over it.
+ */
+.sheet {
+  margin-top: clamp(2rem, 5vw, 4.5rem);
+  padding: clamp(1.5rem, 4.5vw, 4rem);
+  border: 1px solid var(--line-strong);
+  border-radius: calc(var(--radius) * 1.6);
+  background: var(--sheet);
+}
+
+.hint {
+  color: var(--paper-dim);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon-arrow {
+  --arrow-x: 1;
+  --arrow-y: 0;
+}
+
+.icon-arrow[data-direction='down'] {
+  --arrow-x: 0;
+  --arrow-y: 1;
+  rotate: 90deg;
+}
+
+.icon-arrow[data-direction='up'] {
+  --arrow-x: 0;
+  --arrow-y: -1;
+  rotate: -90deg;
+}
+
+/* Buttons: a pill whose fill sweeps in on hover. --pull-* is set by the magnetic pointer effect. */
+.btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  min-height: 3.5rem;
+  padding: 0.5rem 1.6rem;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--paper);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transform: translate(var(--pull-x, 0px), var(--pull-y, 0px));
+  transition:
+    transform 0.6s var(--ease-out),
+    color 0.45s var(--ease-out),
+    border-color 0.45s var(--ease-out),
+    opacity 0.3s ease;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--paper);
+  transform: translateY(102%);
+  transition: transform 0.55s var(--ease-out);
+}
+
+.btn-label {
+  transform: translate(calc(var(--pull-x, 0px) * 0.35), calc(var(--pull-y, 0px) * 0.35));
+  transition: transform 0.6s var(--ease-out);
+}
+
+.btn-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--accent-ink);
+  color: var(--accent);
+  font-size: 1rem;
+  transition: scale 0.5s var(--ease-out);
+}
+
+.btn-primary {
+  padding-right: 0.5rem;
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+}
+
+.btn:focus-visible {
+  border-color: var(--paper);
+  color: var(--ink);
+}
+
+.btn:focus-visible::before {
+  transform: none;
+}
+
+@media (hover: hover) {
+  .btn:hover:not(:disabled) {
+    border-color: var(--paper);
+    color: var(--ink);
+  }
+
+  .btn:hover:not(:disabled)::before {
+    transform: none;
+  }
+
+  .btn:hover:not(:disabled) .btn-icon {
+    scale: 1.08;
+  }
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.75rem 1.1rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-250%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+.scroll-progress {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 70;
+  height: 2px;
+  background: var(--accent);
+  pointer-events: none;
+  transform: scaleX(var(--scroll-progress, 0));
+  transform-origin: 0 50%;
+}
+
+/* Film grain: a tiny tiled SVG noise image. The CSP permits data: images. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+.follower {
+  display: none;
+}
+
+/*
+ * Shared section scaffolding. The space above a section is a gap between two sheets, where
+ * the scene is in the open and the camera moves on to its next view.
+ */
+.section {
+  padding: clamp(5.5rem, 20vh, 14rem) var(--gutter) 0;
+}
+
+.section-head {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(1rem, 2vw, 2rem);
+  align-items: end;
+  padding-bottom: clamp(1.5rem, 3vw, 2.75rem);
+}
+
+.section-head::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  background: var(--line-strong);
+  transform-origin: 0 50%;
+}
+
+.section-index {
+  grid-column: span 2;
+  align-self: start;
+  justify-self: start;
+  margin-top: 0.35rem;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+}
+
+.section-title {
+  grid-column: span 7;
+  font-size: clamp(2.5rem, 6.4vw, 6.5rem);
+  font-weight: 540;
+  letter-spacing: -0.05em;
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+.section-title em,
+.hero-title em {
+  color: var(--accent);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+/* A note can wrap onto two lines, where a fully rounded chip would look pinched. */
+.section-note {
+  grid-column: span 3;
+  justify-self: end;
+  margin-bottom: 0.5rem;
+  border-radius: 1.1rem;
+  color: var(--paper-dim);
+  line-height: 1.4;
+  text-align: right;
+  text-wrap: balance;
+}
+
+@media (max-width: 47.99rem) {
+  .section-head {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0.9rem;
+  }
+
+  .section-index,
+  .section-title,
+  .section-note {
+    grid-column: 1;
+    justify-self: start;
+    margin: 0;
+    text-align: left;
+  }
+}

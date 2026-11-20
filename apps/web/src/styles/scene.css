@@ -1,0 +1,39 @@
+/*
+ * The landscape behind the page. The canvas stays put while the page scrolls over it; the
+ * scene moves its own camera with the scroll position (see motion/scene/scene.ts).
+ */
+.scene {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100vh;
+  height: 100lvh;
+  pointer-events: none;
+}
+
+/*
+ * A scene that must not move (reduced motion, or stopped to protect the page) is one still
+ * frame of the hero's view, so it scrolls away with the hero like an ordinary picture.
+ */
+.scene[data-still] {
+  position: absolute;
+  height: 100vh;
+  height: 100svh;
+}
+
+/* The opening curtain exists only where motion is on; motion.css shows and lifts it. */
+.curtain {
+  display: none;
+}
+
+/* Text split into characters by <SplitText>: words stay whole when a line wraps. */
+.word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.char {
+  display: inline-block;
+}

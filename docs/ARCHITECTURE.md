@@ -37,6 +37,28 @@ The API does not contain an HTTP-fetch or job-execution implementation.
 | `scripts`            | Windows-compatible local setup and verification         |
 | `docs`               | Requirements, safety, decisions, plan, execution proof  |
 
+## Web UI structure
+
+`apps/web/src` is a single page with no client-side routing. `App.tsx` owns the
+readiness state and composes the page; the request form owns its own state.
+
+| Path            | Responsibility                                                                                                       |
+| --------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `api.ts`        | The only code that calls the API; validates every response shape                                                     |
+| `sections/`     | Page sections: header, hero, request validation, readiness, scope, footer                                            |
+| `components/`   | Shared presentational pieces: icons, marquee, per-character text, the scene's canvas                                 |
+| `motion/`       | Enhancement-only behaviour: capability checks, the opening, reveals, pointer and scroll hooks, signals to the scene  |
+| `motion/scene/` | The landscape behind the page: terrain, shaders, one camera pose per section, and the WebGL mount with its fallbacks |
+| `styles/`       | Design tokens, self-hosted font faces, and one stylesheet per area of the page                                       |
+
+The motion layer never changes what is rendered. It only sets attributes and
+CSS custom properties that the stylesheets react to, so the page is complete
+without it. The page reaches the scene in two ways only: attributes in the
+markup (`data-scene-pose` names a section's camera pose, `data-scene-clear`
+marks display type the scene must stay dim behind) and `motion/sceneSignals.ts`,
+which passes on the readiness answer and the outcome of a validation. See
+[D010](DECISIONS.md) for the constraints all of this works within.
+
 ## Interfaces
 
 nginx removes the `/api` prefix before proxying to the API:

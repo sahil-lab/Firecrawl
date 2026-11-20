@@ -12,6 +12,538 @@
 - Reserved ports 18101/18201 were free; no `firecrawl` containers existed.
 - Maven Central metadata resolved Spring Boot **3.5.16**.
 
+## Verified outcome - 2026-11-20: landscape scene
+
+The project owner asked for a far more striking interface. The flat contour
+field behind the headline was replaced by a landscape scene behind the whole
+page, with an opening sequence and a headline drawn one character at a time
+(decision D010, rewritten). The work ran from 2026-11-18 to 2026-11-20 and
+changed only `apps/web/src` and the documents. The API, database, contract,
+runtime topology, dependencies, and lockfile are unchanged. Unless a line says
+otherwise, everything in this section was observed on the final tree, whose
+build is served as `assets/index-Ca_CdfdJ.js` and `assets/index-CTKWAGHS.css`.
+
+The complete documented `scripts/verify.ps1` command, run from
+`C:\Users\upadhsah\Downloads\Firecrawl-main\Firecrawl-main` at 14:35 on
+2026-11-20, exited **0** and printed:
+
+```text
+Firecrawl verification passed. Local dashboard: http://localhost:18101
+```
+
+| Gate                       | Observed result                                                                                                                                                   |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Toolchain                  | Node 22.23.5 and npm 10.9.9 in `node:22-alpine`, at the digest recorded on 2026-11-18. `npm ci` restored 257 packages with no engine warnings.                    |
+| Prettier / ESLint / tsc    | All matched files formatted; lint and the strict TypeScript build gate passed.                                                                                    |
+| Backend                    | Unchanged source. 43 tests passed; 0 failures, errors, or skipped tests. Spotless and JAR packaging passed.                                                       |
+| React component tests      | 9 passed: the eight earlier cases unchanged, plus one that checks the headline is named as one sentence and that the characters drawn for it spell that sentence. |
+| Production build           | 41 modules. JS 277.10 kB (88.49 kB gzip), CSS 39.58 kB (9.15 kB gzip), and the same three `woff2` fonts.                                                          |
+| Real-stack HTTP smoke      | 7 passed, including the security-header and production-asset assertions against the new bundle.                                                                   |
+| Database-unavailable smoke | 1 passed; the database was restored in the script's `finally` block.                                                                                              |
+| Migration/restart, host    | Passed inside the script: one successful Flyway V1 entry before and after API restart; loopback readiness HTTP 200/UP.                                            |
+| Hosted CI                  | Not run. No Git command was run.                                                                                                                                  |
+
+The automated checks now comprise **43 backend + 9 UI + 8 real HTTP tests**.
+For scale, the interface of 2026-11-18 built to JS 252.13 kB (79.21 kB gzip)
+and CSS 32.64 kB (7.80 kB gzip).
+
+That run was made before this section was written. Afterwards the documents
+were formatted and `npm run format:check` passed again. No file under `apps/`
+changed after the run, and the stack still served the bundle named above.
+
+### Browser checks of the final build
+
+These ran against the real stack at `http://localhost:18101` in headless
+Microsoft Edge 157.0.4341.60, driven over the DevTools protocol by scripts run
+with the host's Node. The scripts are not part of this repository, so these are
+recorded observations, not a repeatable project gate. The GPU is this machine's
+integrated one (Intel Arc Pro Graphics through ANGLE and Direct3D 11), and the
+headless browser ran at 60 frames per second. The window is 1440x900 at 1x
+unless a row says otherwise. Rows without a time were observed between 13:38
+and 14:02 on 2026-11-20 with the laptop on battery. No run cited in this section
+overlapped a standby.
+
+| Check                    | Observed result                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Load                     | No console errors or warnings, failed requests, or Content-Security-Policy reports. The scene ran at full quality on a 2106x1330 buffer, and the page at 60-61 frames per second with the scene calm, under a moving pointer, and at the footer. The real API reported "API + database ready".                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Opening                  | In a new browser profile the scene's first frame was drawn 0.63 s after navigation, the opening was released at 0.89 s, and the curtain was gone at 2.03 s. On the next load these were 0.19 s, 0.76 s, and 1.89 s. From release the page ran at 58-62 frames per second in every half second.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Validation, real API     | While a request was held, the controls were disabled and "Validating..." was shown. An acknowledged request with budget 12 showed "Request is valid." and the statement that nothing was fetched, in a status region. Editing a field cleared the result. Budget 101 without acknowledgment showed both API field errors and marked both controls invalid.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Readiness states         | "Checking" and "Stack unavailable" were produced by holding or failing the request in the browser; the stack was not stopped. While checking, the button was disabled and the card's sweep was shown. "Check again" then recovered on the real API and the sweep was gone.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Keyboard only            | 16 tab stops in document order, starting with the skip link, each with a visible focus indicator. The skip link moved to the form. Arrow keys, Enter, and Space operated the form; Enter submitted and the real API answered.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Window sizes             | 320x640 and 390x844 (2x, touch), 820x1180, 1366x640, 1440x900, 1920x1080, 2560x1440, and 3840x2160: no horizontal overflow, both hero actions inside the first window, the scene at full quality, and the page at 60-61 frames per second. At the five sizes other than 1440x900 up to 1920x1080, no element was left hidden once the opening had finished. The scene's buffer was 640x1280, 780x1688, 1382x2026, 2431x1152, 2106x1330, 2222x1260, 2225x1259, and 2227x1257: never more than 2.8 megapixels.                                                                                                                                                                                                                                                                                                                                                     |
+| Touch emulation          | At 390x844 and 320x640: no pointer follower or pointer hint. The status link is 36 px tall and answered taps 21 px above and below its centre. Tapping a corner of the acknowledgment row toggled the checkbox, which is itself 25 px. No other link, button, or field was smaller than 40 px, the skip link not counted.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Narrow header            | At 320 and 375 px wide the brand link is the mark alone, in a 44x44 px link still named "Adaptive Crawl Lab home"; from 376 px the name is shown. With the longest status label, produced by blocking the readiness request, the two links were 110 px apart at 320 px and 36 px apart at 376 px, and nothing overflowed. (14:43)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Reduced motion           | No opening. None of 87 watched elements was hidden or moved, no animation was running, and there was no pointer follower or hint. The scene was one still picture that scrolled away with the hero, and a pointer and a press changed nothing in it. The marquee was one wrapped row with all six statements visible, and the footer had its ordinary height. See "The still picture" below.                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Scene without a GPU      | Started with `--disable-gpu`, the browser offered only software WebGL, which the scene declines. It drew nothing, its caption stayed hidden, the static gradient stood in, the opening was released 1.0 s after navigation, the page ran at 61 frames per second, and validation against the real API worked.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Scene under load         | The page's CPU was throttled with the pointer still. At 14:32, throttled 10x, the scene went to 70% resolution after 4.6 s and 50% after 8.6 s, and stopped on a still frame after 11.0 s. While stopped the pointer hint was gone, the headline no longer drifted, the footer had its ordinary height, and the form worked. Left alone, the scene started again 19.9 s after stopping; with the pointer then moving over the land it was at 70% after 5.8 s and at full resolution after 11.8 s. Stopped a second time, it was running again when checked about two seconds after the page came back from behind another tab. At 13:56, on battery, it did not give way at 10x in 30 s; at 40x it reached 70% after 7.7 s and 50% after 13.7 s and did not stop in 30 s, and with the pointer moving over the land it was back at full resolution after 16.4 s. |
+| Scene after context loss | The WebGL context was taken away and returned twice with `WEBGL_lose_context`. Each time the scene drew nothing, hid its caption, and showed the static gradient; it was drawing again at full quality 28 ms and 23 ms after the context returned, and afterwards a press still changed the picture.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Pointer details          | The marquee paused under the pointer and ran again after it left. The follower showed its pressed state while the mouse button was held, dropped it on release and on a cancelled press, and was hidden when the pointer left the page. The pull on the two magnetic buttons stopped at 12 px and was released when the pointer left.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Footer wordmark          | At widths of 320, 390, 820, 1440, 1920, and 2560 px the wordmark's text ended 0.2-2.1 px inside the footer's content box on each side.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Selection                | The selection colours computed as the accent on its ink for the lede, the URL field, a ledger row, and a headline character.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+
+**The still picture.** A scene that must not move is checked by capturing a
+patch of it several times and comparing the captures. In the reduced-motion run
+above, the first of three captures differed from the other two, and the script
+kept no record of where. That was not seen again: in twelve further loads, 48
+captures taken between 2 and 8 s after navigation were identical within each
+load, and in the eleven of those loads where the scene's draw calls were counted
+it had drawn once before the first capture (twice, 18 ms apart, in one load) and
+not again. For the stopped scene, the 14:32 run above compared captures once
+under the throttle and twice after it was lifted, and none differed. A run at
+12:35 on an earlier build of that day had found two captures of the stopped
+scene differing while the throttle was still on, and did not check again with it
+lifted. What made the captures differ in those two runs was not established.
+
+Not verified: Firefox and Safari; physical phones or tablets (emulation only);
+screen readers; displays faster than 60 frames per second or with a variable
+rate, and real high-density displays (densities were emulated in a headless
+browser running at 60); any GPU other than this machine's integrated one; and
+browsers without `KHR_parallel_shader_compile`, where the page still waits for
+the scene's programs when it starts, or without registered custom properties and
+inherited highlight styles, which the pointer effects and the selection colours
+use. The scene's steps down were triggered by throttling the page's CPU, not by
+a slow GPU. No session longer than a few minutes was observed, and the
+comparison of folded and unfolded noise recorded for the contour field was not
+repeated for the scene's terrain, which folds its offsets in the same way.
+Energy use was not measured. Resource limits and the digests of the unchanged
+images were not inspected again.
+
+### Text contrast, measured from screenshots
+
+Decision D010 has two rules: small text never sits on the open scene, and the
+scene stays dim behind the display type that does. Both were checked from
+screenshots of the final build at 1440x900, 390x844, 320x640, 820x1180, and
+1920x1080 (14:01 to 14:13), by a script that finds every run of visible text,
+captures the page with the text hidden, and computes the WCAG ratio between
+each run's colour and the pixels behind it. The film-grain layer, which lays the
+same faint texture over text and background alike, and the pointer follower
+were hidden for these captures. No run of text failed in any pass.
+
+| Pass         | What was captured                                                                                                                                                                                                                                                                                                               | Size of the pass                             | Lowest ratio found                                                                                     |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| White        | The scene hidden and the page behind everything painted white, with the stack ready, after a valid and an invalid request, and with the stack unavailable. Text not marked for the scene must reach 4.5:1, or 3:1 if large.                                                                                                     | 136-196 runs of text for each state and size | 4.70:1 for normal text (a label on the budget gauge) and 3.56:1 for large text (a marquee statement)   |
+| White, hover | The same while hovering each control and card, at the three sizes without touch.                                                                                                                                                                                                                                                | 100-111 runs                                 | 4.66:1 (the note under the request preview)                                                            |
+| Grey         | Display type marked `data-scene-clear`, on the brightest grey the scene can show behind it. It must reach 3:1.                                                                                                                                                                                                                  | 42-45 runs                                   | 3.41:1                                                                                                 |
+| Live         | The scene running and provoked, with the text hidden: the hero at rest and scrolled, the pointer and presses on the headline, the ring after a valid and after an invalid request, the section titles at several scroll positions, and the unavailable tint. The brightest channel inside each marked box of text was recorded. | 55-61 captures for each size                 | Brightest channel 118-123 of 255. For the display colour with the least contrast, 3.85-4.07:1 by size. |
+
+The scene's own limit inside those boxes is 46% of full scale, which over the
+page's ink comes to 122-123 of 255.
+
+The audit does not judge the footer wordmark and the marquee's outlined second
+row (both hidden from assistive technology), the text of disabled controls, text
+that is fully transparent or is under or just below the fixed header at the
+moment of a capture, graphics that are not text, or focus rings.
+
+Earlier runs of the same audit during this update found the following, and each
+was fixed before the final build. Their output was not kept, so the figures are
+as noted at the time.
+
+- The faintest text colour measured 4.17:1 on a sheet. `--paper-faint` went from
+  `#788279` to `#808a81`, which is the 4.70:1 above.
+- The readiness card's radar rings ran behind its hint text (3.91:1). The card
+  is now a grid in which the radar has a cell of its own.
+- The scene stayed dim inside each marked element's box, which the tails and
+  overshoot of large type leave: the brightest channel behind the headline's
+  text was 148. The boxes are now taken from the text itself, which is the 123
+  above.
+- At 320 px the status link overlapped the product name. The narrow-header row
+  above is the fix.
+- The footer wordmark overhung its right edge by 4-36 px, depending on the
+  width. It was measured again and resized; the wordmark row above is the fix.
+
+### Scene measurements
+
+The scene draws continuously, so its cost was measured in the same headless
+browser at 1440x900. "GPU share" is the browser's part of the GPU's 3D engine
+from the Windows "GPU Engine" counters, given as the range over two windows of
+about ten seconds each (one window at 2x density). All other processes together
+took 4.7-7.9% in the same windows. The contour field's column is the 2026-11-18
+record below. The middle column is the build of 12:32 on 2026-11-20, which
+differs from the final one in the footer wordmark's size, the narrow header, and
+how far ripples reach. The columns come from separate runs in different power
+states, so they are one machine's observations, not a benchmark.
+
+| Condition                                   | Contour field, 2026-11-18           | Scene, 12:45, on mains    | Scene, final build, 13:47, on battery |
+| ------------------------------------------- | ----------------------------------- | ------------------------- | ------------------------------------- |
+| Calm at the hero                            | 7.6-8.8%, drawing 30 times a second | 12.6-14.6%, drawing 30-35 | 10.6-12.9%, drawing 30-34             |
+| Pointer moving over the hero                | 16.2-17.2%, drawing 59-60           | 29.5-34.4%, drawing 60    | 23.3-25.6%, drawing 60                |
+| Scrolling                                   | Not measured                        | 34.3-35.9%, drawing 59-60 | 22.2-23.0%, drawing 58-60             |
+| Calm behind the validation sheet            | Not applicable                      | 11.6-14.4%, drawing 21-24 | 9.3-11.4%, drawing 20-22              |
+| Calm at the footer                          | Not applicable                      | 12.5-13.2%, drawing 35-36 | 10.6-10.9%, drawing 35                |
+| Scene taken away                            | Not applicable                      | 0%                        | 0%                                    |
+| 2x density: calm, pointer moving, scrolling | 8.3-13.3%, 20.1-25.0%, not measured | 14.0%, 32.3%, 25.3%       | 10.9%, 32.9%, 25.2%                   |
+
+In every window of both scene columns the page ran at 58-60 frames per second,
+and at most 4 of the 420-730 frames in a window came late. The scene costs more
+than the field it replaced: about 1.2 to 1.9 times its share when calm, and 1.4
+to 2.1 times with the pointer moving.
+
+- **Machine state.** The share depends on what else the machine is doing. In
+  two runs between 14:45 and 14:49, five to eight minutes after the verification
+  script finished, the final build's calm scene measured 44.9% and 41.1%, and
+  63.6% and 44.4% with the pointer moving. Other processes took 8-14% in those
+  windows, and the measuring script itself needed 67-68 s where it otherwise
+  needs 41-45 s. At 14:52 the same run measured 14.6% and 25.5% again. What the
+  machine was doing in between was not investigated.
+- **Multisampling.** The scene's context is created without it. From 14:53 to
+  14:57, on mains, the final build was measured in turn with the context forced
+  to four samples and as shipped, twice. With four samples the calm scene took
+  19.3% and 20.1%, and 39.4% and 39.3% with the pointer moving; as shipped,
+  14.2% and 13.8%, and 29.4% and 31.8%. The page ran at 60 frames per second
+  either way. A first attempt at 14:45 fell in the machine state described
+  above and was repeated for that reason; in it four samples took 52.6% and
+  63.1% calm.
+- **Pacing.** In the table, the calm scene drew 30-36 times a second in the open
+  and 20-24 behind a sheet, and every frame only while the pointer moved or the
+  page scrolled. Calm cost about half of what drawing every frame cost.
+- **The scene's own drawing.** The measuring script timed the scene's draw calls
+  on the GPU with `EXT_disjoint_timer_query`. The median was 1.9-2.4 ms a frame
+  in seven of eight windows (calm, pointer on the land, pointer on the headline,
+  scrolling) and 3.6 ms in one, with the 90th percentile at most 4.2 ms. At
+  14:52, on mains, the medians were 1.9-2.0 ms.
+- **Main thread.** By the browser's own bookkeeping the main thread was busy for
+  5-6% of the time with the scene calm, 23-26% with the pointer moving over the
+  land, 35-38% over the headline, and 28-30% while scrolling, on battery; on
+  mains at 14:52 these were 4%, 16%, 21%, and 18%. In a run at 18:02 on
+  2026-11-19, before the per-frame changes below, they were 22.7% calm, 45.5%
+  over the land, and 67.2% over the headline, where the page fell to 51 frames
+  per second.
+- **Style work per frame.** In three-second traces, the pointer over the land
+  cost one style pass a frame over 5 elements (0.99 ms); over the headline, two
+  passes over 5 and 6 elements (0.82 and 0.48 ms); scrolling through the hero,
+  two passes over 25 and 7 elements (0.87 and 0.64 ms); and the marquee in view,
+  one pass over 28 elements (0.65 ms). With the marquee out of view its 28
+  animations were paused, and with the effects writing nothing there was no
+  style pass at all. In the run at 18:02 on 2026-11-19 the pointer over the
+  land cost two passes a frame totalling 3.55 ms, and over the headline 6.35 ms.
+  On the build of 23:56 that day, scrolling cost 5.6 passes a frame.
+- **Reads before writes.** With every read and write of the document by the
+  scene and the pointer and scroll effects recorded, each of 120 frames with the
+  pointer over the land and 120 frames of scrolling made all of its reads (the
+  scroll position, the canvas's box, the boxes of the display type) before its
+  first write.
+- **Locating the display type.** Asking the browser where the headline's text is
+  cost 0.09-0.10 ms a frame. Publishing the pointer's numbers as registered,
+  non-inherited properties on the four hero layers cost 0.30 ms a frame; one
+  inherited number on the hero, with its 77 descendants, cost 2.63 ms.
+- **Startup.** In three loads, the first in a new profile, the scene's compile
+  and link calls took 0.4-0.5 ms of main-thread time per load and its longest
+  draw call 1.6 ms. Around the first press, the first use of the ripple program,
+  the longest frame was 17.8 ms. In three new profiles each, taken in turn, the
+  page spent 417, 400, and 433 ms in frame gaps longer than 50 ms before the
+  opening was released with the scene, and 233, 283, and 317 ms with WebGL
+  withheld by the script; after release, 0, 0, and 50 ms against 0, 0, and 0.
+  The curtain lifted at 59-60 frames per second either way.
+- **Refresh rate.** The scene judges the page's pace against the display's own
+  frame interval, which it estimates from the gaps between frames. The first
+  estimator took the smallest average of two neighbouring gaps. On the build of
+  12:11 on 2026-11-20 a script applying the same rule to the page's frame times
+  saw single short gaps drag it to 14.15 ms on a 16.7 ms display, and that
+  build's scene, stepped down by a throttle, did not step back up in 32 s. The
+  estimator is now the smallest middle value of five neighbouring gaps: 16.3 ms
+  over 1,551 frames on the final build, where the earlier rule would have said
+  15.45 ms, and 16.5 ms over 5,319 frames on the 12:32 build.
+
+### Failures and events during this update
+
+- At 14:12 on 2026-11-18 the computer was shut down from the Windows shell; the
+  System event log records a power off initiated by Explorer for the signed-in
+  user. That interrupted a build and a browser check, which were repeated. The
+  computer was started again at 15:40. Docker Desktop, which does not start by
+  itself, was started at about 20:59 with `docker desktop start`, a third time
+  on the approval the owner gave for the first. Only this project's services
+  were started again, on the existing volume and credential, and no other
+  project's container was running afterwards.
+- The System event log records no bugcheck or unexpected shutdown between 12:00
+  on 2026-11-18 and 15:00 on 2026-11-20.
+- Two measurement runs overlapped a standby and were discarded: one from 18:06
+  to 18:29 on 2026-11-19 with the lid closed, which hung, and one at 00:20 on
+  2026-11-20, when the display's idle timeout put the machine into Modern
+  Standby. There the headless browser ran at about 42 frames per second whatever
+  the page did, and the scene stepped down and stopped. The measuring scripts
+  now hold the system and the display awake while they run and report any
+  standby entry. No power setting was changed.
+- The laptop ran on battery from about 13:38 to 14:24 on 2026-11-20, from 70% to
+  31% of charge, and on mains from 14:27.
+- A design in which the scene timed its own drawing on the GPU, to judge whether
+  it was the reason the page was slow, was built, tested, and removed: with only
+  the page's CPU throttled, that scene never gave way.
+- Ripples far from the camera were too small to see. They are now longer and
+  faster in proportion to their distance, at the same height. This was judged
+  from captures, not measured.
+- Outputs of the first multisampling comparison, of the contrast audits that
+  found the defects listed above, and of one run of the load scenario were not
+  kept. Nothing in this section relies on them except where it says so.
+- The verification script was run once in this update, on the final tree.
+
+### Files changed in this update
+
+```text
+README.md
+apps/web/src/App.tsx
+apps/web/src/App.test.tsx
+apps/web/src/index.css
+apps/web/src/components/ContourField.tsx    (removed)
+apps/web/src/components/Marquee.tsx
+apps/web/src/components/Scene.tsx           (new)
+apps/web/src/components/SplitText.tsx       (new)
+apps/web/src/components/icons.tsx
+apps/web/src/motion/bootstrap.ts
+apps/web/src/motion/contourField.ts         (removed)
+apps/web/src/motion/contourShader.ts        (removed)
+apps/web/src/motion/sceneSignals.ts         (new)
+apps/web/src/motion/usePointerEffects.ts
+apps/web/src/motion/useScrollEffects.ts
+apps/web/src/motion/useSplitOrder.ts        (new)
+apps/web/src/motion/scene/poses.ts          (new)
+apps/web/src/motion/scene/scene.ts          (new)
+apps/web/src/motion/scene/shaders.ts        (new)
+apps/web/src/motion/scene/terrain.ts        (new)
+apps/web/src/sections/Hero.tsx
+apps/web/src/sections/ReadinessSection.tsx
+apps/web/src/sections/ScopeSection.tsx
+apps/web/src/sections/SiteFooter.tsx
+apps/web/src/sections/ValidateSection.tsx
+apps/web/src/styles/base.css
+apps/web/src/styles/header.css
+apps/web/src/styles/hero.css
+apps/web/src/styles/motion.css
+apps/web/src/styles/readiness.css
+apps/web/src/styles/scene.css               (new)
+apps/web/src/styles/scope.css
+apps/web/src/styles/tokens.css
+apps/web/src/styles/validate.css
+docs/ARCHITECTURE.md
+docs/CODING_CONVENTIONS.md
+docs/DECISIONS.md
+docs/EVIDENCE.md
+docs/PLAN.md
+```
+
+No backend, migration, nginx, contract, script, smoke-test, package, or lockfile
+change was made.
+
+## Verified outcome - 2026-11-18: Node 22 and interface redesign
+
+This section and the 2026-11-12 record below are kept as history. The toolchain
+it records is still the current one. The interface it describes was changed
+again on 2026-11-20: the contour field behind the headline, which most of this
+section measures, was replaced by the landscape scene recorded above.
+
+Frontend tooling moved to Node 22 LTS and the dashboard was redesigned (decisions
+D009 and D010). The work ran from late 2026-11-16 to 2026-11-18. The gate table
+and the browser checks below were observed on the tree as it was on 2026-11-18;
+where a figure comes from an earlier build of that update, it says so. The API,
+database, contract, and runtime topology are unchanged.
+
+The complete documented `scripts/verify.ps1` command exited **0** and printed:
+
+```text
+Firecrawl verification passed. Local dashboard: http://localhost:18101
+```
+
+| Gate                       | Observed result                                                                                                        |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Toolchain                  | Node 22.23.5 and npm 10.9.9 in `node:22-alpine`. `npm ci` restored 257 packages with no engine warnings.               |
+| Prettier / ESLint / tsc    | All matched files formatted; lint and the strict TypeScript build gate passed.                                         |
+| Backend                    | Unchanged source. 43 tests passed; 0 failures, errors, or skipped tests. Spotless and JAR packaging passed.            |
+| React component tests      | 8 passed: the six earlier cases unchanged, plus the request preview with budget stepping and clearing a stale result.  |
+| Production build           | 36 modules. JS 252.13 kB (79.21 kB gzip), CSS 32.64 kB (7.80 kB gzip), and three `woff2` fonts totalling 74.66 kB.     |
+| Real-stack HTTP smoke      | 7 passed, including the security-header and production-asset assertions against the new bundle.                        |
+| Database-unavailable smoke | 1 passed; the database was restored in the script's `finally` block.                                                   |
+| Migration/restart, host    | Passed inside the script: one successful Flyway V1 entry before and after API restart; loopback readiness HTTP 200/UP. |
+| Hosted CI                  | Not run. No Git command was run.                                                                                       |
+
+The automated checks now comprise **43 backend + 8 UI + 8 real HTTP tests**.
+For scale, the previous interface built on the same toolchain was JS 226.23 kB
+(70.91 kB gzip) and CSS 3.76 kB, with no font files.
+
+### Toolchain and dependency changes
+
+- `node:22-alpine` resolved to
+  `sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a`
+  (Alpine 3.24.4). The other images were not pulled again.
+- Lockfile: added `@fontsource-variable/geist`, `@fontsource-variable/geist-mono`,
+  and `@fontsource/instrument-serif` (each 5.3.0, OFL-1.1); `@types/node`
+  24.19.2 -> 22.20.5 with its `undici-types` 7.24.6 -> 6.21.0. No other resolved
+  version changed: React 19.3.1, TypeScript 6.0.3, Vite 8.3.8, Vitest 4.1.12,
+  ESLint 10.14.0, and Prettier 3.6.2 are as before.
+- Before the interface was touched, the previous UI passed formatting, lint, its
+  six tests, and the production build on Node 22.23.5.
+- Host Node and Java were not replaced and were not used to install or build the
+  application or to run the project's tests.
+
+### Browser checks of the redesigned interface
+
+These ran against the real stack at `http://localhost:18101` in headless
+Microsoft Edge 157.0.4341.60, driven over the DevTools protocol by a script run
+with the host's Node. That script is not part of this repository, so these are
+recorded observations, not a repeatable project gate. Every row describes the
+final build, served as `assets/index-RYONCHDF.js`.
+
+| Check                        | Observed result                                                                                                                                                                                                                                                                                                                     |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Load, 1440x900               | No console errors or warnings, failed requests, or Content-Security-Policy reports. Three fonts loaded from the same origin. The real API reported "API + database ready".                                                                                                                                                          |
+| Validation, real API         | An acknowledged request with budget 12 showed "Request is valid." Budget 101 without acknowledgment showed both API field errors and marked both controls invalid. Editing cleared the result.                                                                                                                                      |
+| Pending and readiness states | Pending, "Checking readiness...", and "Stack unavailable" were produced by holding or failing the request in the browser; the stack was not stopped. "Check again" then recovered on the real API.                                                                                                                                  |
+| Keyboard only                | 16 tab stops in document order, starting with the skip link, each with a visible focus indicator. Arrow keys, Enter, and Space operated the form; Enter submitted and the real API answered.                                                                                                                                        |
+| Viewports                    | 320x640, 390x844, 820x1180, 1366x640, 1440x900, 1920x1080, 2560x1440, and 3840x2160: no horizontal overflow, and both hero actions inside the first viewport.                                                                                                                                                                       |
+| Touch emulation              | No pointer follower or pointer hint. The status link's tap target is 44 px tall, and tapping a corner of the acknowledgment row toggles the checkbox.                                                                                                                                                                               |
+| Reduced motion               | Nothing hidden or offset, no running animations, the contour field drawn as one still frame, and the marquee wrapped with all six statements visible.                                                                                                                                                                               |
+| Field without a GPU          | Started with `--disable-gpu`, the browser offered only software WebGL. The field drew nothing, its caption stayed hidden, the page ran at 61 frames per second, and validation against the real API worked.                                                                                                                         |
+| Field under load             | With the page's CPU throttled 10x, the field halved its resolution after 2.7 s and stopped on a still frame after 5.0 s, and its pointer hint was removed. It stayed stopped when the throttle was lifted and the form still worked. After scrolling away and back it ran again at the reduced resolution, at 61 frames per second. |
+| Field after context loss     | The WebGL context was taken away and returned twice with `WEBGL_lose_context`. Each time the field drew nothing and hid its caption, was drawing again at full quality about 0.13 s after the context returned, and afterwards still answered the pointer and a press.                                                              |
+
+Not verified: Firefox and Safari; physical phones or tablets (emulation only);
+screen readers; real high-density or high-refresh displays (pixel densities were
+emulated in a headless browser running at 60 frames per second); any GPU other
+than this machine's integrated one; and browsers without
+`KHR_parallel_shader_compile`, where the page still waits for the field's
+programs when it starts. The field's quality reduction was triggered by
+throttling the page's CPU, not by a slow GPU. Resource limits and the digests of
+the unchanged images were not inspected again.
+
+### Contour field measurements
+
+The field is the only part of the page that draws continuously, so its cost was
+measured in the same headless browser at 1440x900 on this machine's integrated
+GPU (Intel Arc Pro Graphics through ANGLE and Direct3D 11). "GPU share" is the
+browser's part of the GPU's 3D engine from the Windows "GPU Engine" counters,
+given as the range over two to five four-second windows. The two builds were
+measured in separate runs while other applications were using 10-71% of the same
+engine for the earlier build and 20-31% for the final one, so these are one
+machine's observations, not a benchmark.
+
+The earlier build is one from this update that drew every display frame, faded
+the canvas with a CSS mask, allowed a five-megapixel buffer, and compiled its
+programs synchronously.
+
+| Condition                         | Earlier build                                | Final build                                  |
+| --------------------------------- | -------------------------------------------- | -------------------------------------------- |
+| Field idle, 1x density            | 15-38% GPU share                             | 7.6-8.8%, drawing 30 times a second          |
+| Pointer resting on the field, 1x  | 16-38%                                       | 7.5-8.5%, drawing 30 times a second          |
+| Pointer moving, 1x                | Not measured                                 | 16.2-17.2%, drawing 59-60 times a second     |
+| Ripples alive, 1x                 | 17-35%                                       | 18.1-20.5%, drawing 60 times a second        |
+| Field idle, 2x density            | 44-69% on a 5.0 MP buffer; page at 53-60 fps | 8.3-13.3% on a 3.0 MP buffer; page at 60 fps |
+| Pointer resting on the field, 2x  | 63-68%; page at 52-54 fps                    | 8.2-12.7%; page at 60 fps                    |
+| Pointer moving, 2x                | Not measured                                 | 20.1-25.0%; page at 60 fps                   |
+| Ripples alive, 2x                 | Not measured                                 | 26.9-33.2%; page at 60 fps, one window at 52 |
+| Shader compile and link, per load | 14.3, 30.0, and 243.8 ms of main-thread time | 0.1-0.4 ms                                   |
+
+- **Mask.** With the shader swapped for a plain clear, so that only compositing
+  was measured, the masked canvas took 17.4-18.6% and the unmasked canvas
+  11.1-13.0% in the same run. With the terrain seeded and drawn as a still
+  frame, the shader's own fade differed from the masked build in 3.05% of pixels
+  at 1440x900 and 3.06% at 390x844, never by more than 2 of 255 levels; the same
+  build captured twice differed in 0.01%.
+- **Frame pacing.** In the final build's own runs, the same field cost 7.6-8.8%
+  drawing 30 times a second and 16.2-17.2% drawing every frame under a moving
+  pointer.
+- **Startup.** The 243.8 ms was the first load in a new browser profile. In three
+  cold starts of the final build the field began drawing 0.5-0.8 s after it
+  started preparing its programs. Around the first press, the first use of the
+  ripple program, the longest frame was 17.8 ms.
+- **Frame rate.** The final build sampled at 60 frames per second in seven of
+  eight samples at 1x (47 in the first, 3.5 s after load) and at 60-61 in all
+  eight at 2x. At 2560x1440 it held 60, and at 3840x2160 it held 60 idle and 57
+  with the pointer on it and a ripple.
+- **Buffer.** At 1440x900 the field chose 1425x900 at 1x and 2179x1376 at 2x. It
+  chose 2303x1303 for a 2560x1440 window and 2305x1302 for a 3840x2160 window,
+  where it is scaled up by 1.66 and its lines stayed smooth in the capture.
+- **Long sessions.** The drift offset is folded into one period of the noise so
+  that positions stay small. A script outside the browser compared folded and
+  unfolded noise at 200,000 random points, with offsets of up to 30 days of
+  drift; value and slope differed by at most 1.1e-9.
+
+### Failures and events during this update
+
+- The first `node:22-alpine` pull ended with an EOF from the registry's CDN. The
+  retry succeeded; nothing was changed to work around it.
+- Installing `@types/node@^22` into the workspace alone left Vite's and Vitest's
+  optional peer on 24.x, so npm nested a second copy under `apps/web/node_modules`
+  on the Windows bind mount. The dependency was re-resolved so one 22.x copy is
+  hoisted into the `firecrawl_node_modules` volume; the lockfile has no nested
+  entries.
+- Once, early after an API start and while the host was busy, a rejected request
+  took longer than the UI's 10-second timeout. The UI showed its explicit "Could
+  not reach the local API" error rather than a result; the same request then
+  answered in about one second and after that in 51 ms. Timeouts were not changed.
+- The host restarted twice during the work, and Docker Desktop, which does not
+  start by itself, was not running afterwards. The Windows System event log
+  records both as bugchecks: 0x13A at 03:17 on 2026-11-17 while the machine was
+  awake, and 0x9F at 06:54 on 2026-11-18 while it entered hibernation from
+  Modern Standby with the lid closed. The same log lists 21 earlier bugchecks
+  since 2026-07-27, 18 of them 0x9F. Whether this project's containers or the
+  headless browser runs contributed to either was not investigated.
+- After the first restart Docker Desktop was started with `docker desktop start`
+  on the owner's approval, and after the second in the same way on that
+  approval. Each time only this project's services were started again, on the
+  existing volume and credential. Other projects' containers were left as Docker
+  restored them; none was running after the second restart.
+- The second restart followed a standby that began in the middle of a browser
+  check. That run was discarded and repeated.
+- The contour field was first drawn with the 2D canvas API. In testing it could
+  not keep up with the pointer over it and its quality reduction did not engage
+  as intended, so it was rewritten as a WebGL shader and the reduction was
+  reworked. That version held 60 frames per second at 1x density but not at 2x,
+  which led to the measurements and changes recorded above.
+- Earlier runs of the complete verification script on intermediate trees also
+  exited 0. One of them took 5003 s because the machine entered Modern Standby
+  part-way through.
+
+### Files changed in this update
+
+```text
+README.md
+package.json
+package-lock.json
+apps/web/index.html
+apps/web/package.json
+apps/web/public/favicon.svg                 (new)
+apps/web/src/App.tsx
+apps/web/src/App.test.tsx
+apps/web/src/index.css
+apps/web/src/main.tsx
+apps/web/src/status.ts                      (new)
+apps/web/src/components/ContourField.tsx    (new)
+apps/web/src/components/Marquee.tsx         (new)
+apps/web/src/components/icons.tsx           (new)
+apps/web/src/motion/bootstrap.ts            (new)
+apps/web/src/motion/contourField.ts         (new)
+apps/web/src/motion/contourShader.ts        (new)
+apps/web/src/motion/environment.ts          (new)
+apps/web/src/motion/useActiveSection.ts     (new)
+apps/web/src/motion/usePointerEffects.ts    (new)
+apps/web/src/motion/useReveal.ts            (new)
+apps/web/src/motion/useScrollEffects.ts     (new)
+apps/web/src/sections/Hero.tsx              (new)
+apps/web/src/sections/ReadinessSection.tsx  (new)
+apps/web/src/sections/ScopeSection.tsx      (new)
+apps/web/src/sections/SiteFooter.tsx        (new)
+apps/web/src/sections/SiteHeader.tsx        (new)
+apps/web/src/sections/ValidateSection.tsx   (new)
+apps/web/src/sections/sections.ts           (new)
+apps/web/src/styles/base.css                (new)
+apps/web/src/styles/fonts.css               (new)
+apps/web/src/styles/header.css              (new)
+apps/web/src/styles/hero.css                (new)
+apps/web/src/styles/motion.css              (new)
+apps/web/src/styles/readiness.css           (new)
+apps/web/src/styles/scope.css               (new)
+apps/web/src/styles/tokens.css              (new)
+apps/web/src/styles/validate.css            (new)
+docs/ARCHITECTURE.md
+docs/CODING_CONVENTIONS.md
+docs/DECISIONS.md
+docs/EVIDENCE.md
+docs/PLAN.md
+infra/docker/compose.yaml
+```
+
+No backend, migration, nginx, contract, script, or smoke-test file changed.
+`ContourField.tsx`, `contourField.ts`, and `contourShader.ts` were removed again
+in the 2026-11-20 update.
+
 ## Verified outcome - 2026-11-12
 
 The complete documented `scripts/verify.ps1` command exited **0** and printed:

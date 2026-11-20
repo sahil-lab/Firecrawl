@@ -1,0 +1,252 @@
+/* The perspective is for the status card, which turns toward the pointer. */
+#readiness {
+  perspective: 110rem;
+}
+
+/*
+ * --state-rgb themes the whole card from the single readiness answer. The copy is laid out in
+ * the first column, one piece per row. The radar has the second column to itself, so nothing it
+ * draws is ever behind small text; only the large status line runs across it.
+ */
+.status-card {
+  --state-rgb: var(--warn-rgb);
+  --card-pad: clamp(1.5rem, 4.5vw, 4rem);
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template: repeat(4, auto) / minmax(0, 1fr) clamp(9rem, 27vw, 25rem);
+  gap: 1.25rem clamp(1.5rem, 4vw, 4rem);
+  margin-top: clamp(2rem, 5vw, 4.5rem);
+  padding: var(--card-pad);
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: calc(var(--radius) * 1.6);
+  background: var(--ink-raised);
+}
+
+.status-card[data-state='ready'] {
+  --state-rgb: var(--accent-rgb);
+}
+
+.status-card[data-state='unavailable'] {
+  --state-rgb: var(--danger-rgb);
+}
+
+/* The radar's cell reaches the card's top, right and bottom edges and clips what is drawn in it. */
+.status-radar {
+  grid-area: 1 / 2 / -1 / 3;
+  position: relative;
+  margin: calc(var(--card-pad) * -1) calc(var(--card-pad) * -1) calc(var(--card-pad) * -1) 0;
+  overflow: hidden;
+  container-type: size;
+}
+
+/*
+ * The rings and the sweep are two discs on one centre. They fade out toward their rim, and the
+ * rim reaches exactly as far as the cell's left edge, where the copy's column begins.
+ */
+.status-radar::before,
+.status-radar::after {
+  content: '';
+  position: absolute;
+  top: 50cqh;
+  left: 72cqw;
+  width: 144cqw;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  -webkit-mask-image: radial-gradient(circle closest-side, #000 15%, transparent 100%);
+  mask-image: radial-gradient(circle closest-side, #000 15%, transparent 100%);
+  translate: -50% -50%;
+}
+
+.status-radar::before {
+  background: repeating-radial-gradient(
+    circle closest-side,
+    transparent 0,
+    transparent calc(12.5% - 1px),
+    rgb(var(--state-rgb) / 0.26) calc(12.5% - 1px),
+    rgb(var(--state-rgb) / 0.26) 12.5%
+  );
+}
+
+/*
+ * The sweep only exists while a request is in flight, so idle states never imply monitoring.
+ * At this strength the status line keeps 3:1 where it crosses a ring under the sweep.
+ */
+.status-radar::after {
+  background: conic-gradient(from 0deg, rgb(var(--state-rgb) / 0.4), transparent 24%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.status-card[data-state='checking'] .status-radar::after {
+  opacity: 1;
+}
+
+/* The body's children take their places in the card's own grid. */
+.status-body {
+  display: contents;
+}
+
+.health {
+  grid-area: 1 / 1 / 2 / -1;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 1.6vw, 1.4rem);
+  font-size: clamp(2rem, 5.6vw, 5.5rem);
+  font-weight: 540;
+  letter-spacing: -0.052em;
+  line-height: 1;
+}
+
+.status-dot {
+  flex-shrink: 0;
+  width: 0.2em;
+  height: 0.2em;
+  border-radius: 50%;
+  background: rgb(var(--state-rgb));
+  box-shadow:
+    0 0 0 0.09em rgb(var(--state-rgb) / 0.2),
+    0 0 1.1em rgb(var(--state-rgb) / 0.6);
+  transition:
+    background-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
+.status-text {
+  display: block;
+}
+
+.status-card .hint {
+  grid-area: 2 / 1;
+  max-width: 36rem;
+  font-size: 1rem;
+}
+
+.status-card .btn {
+  grid-area: 3 / 1;
+  justify-self: start;
+  margin-top: 0.5rem;
+}
+
+.status-path {
+  grid-area: 4 / 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: calc(clamp(2.5rem, 6vw, 5rem) - 1.25rem);
+}
+
+.status-path li {
+  position: relative;
+  padding: 1.4rem 1rem 0 0;
+  color: var(--paper-dim);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.status-path li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0.55rem;
+  height: 0.55rem;
+  border: 1px solid rgb(var(--state-rgb));
+  border-radius: 50%;
+  transition:
+    background-color 0.4s ease,
+    border-color 0.4s ease;
+}
+
+.status-path li::after {
+  content: '';
+  position: absolute;
+  top: calc(0.275rem - 0.5px);
+  right: 0.4rem;
+  left: 0.95rem;
+  height: 1px;
+  background: linear-gradient(90deg, rgb(var(--state-rgb) / 0.75) 50%, transparent 0) 0 0 / 0.5rem
+    1px repeat-x;
+}
+
+.status-path li:last-child::after {
+  display: none;
+}
+
+.status-card[data-state='ready'] .status-path li::before {
+  background: rgb(var(--state-rgb));
+}
+
+.status-card[data-state='ready'] .status-path li::after {
+  background: rgb(var(--state-rgb) / 0.55);
+}
+
+@media (max-width: 47.99rem) {
+  /*
+   * On a narrow card everything is in one column. The radar's cell is the top of the card,
+   * down to the bottom of the status line, and the radar hangs from the card's top edge.
+   */
+  .status-card {
+    grid-template: 2.5rem repeat(4, auto) / minmax(0, 1fr);
+  }
+
+  .status-radar {
+    grid-area: 1 / 1 / 3 / 2;
+    margin: calc(var(--card-pad) * -1) calc(var(--card-pad) * -1) 0;
+  }
+
+  .status-radar::before,
+  .status-radar::after {
+    top: 0;
+    left: 78cqw;
+    width: min(156cqw, 200cqh);
+  }
+
+  .health {
+    grid-area: 2 / 1;
+  }
+
+  .status-card .hint {
+    grid-area: 3 / 1;
+  }
+
+  .status-card .btn {
+    grid-area: 4 / 1;
+  }
+
+  .status-path {
+    grid-area: 5 / 1;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .status-path li {
+    padding: 0 0 1.25rem 1.6rem;
+  }
+
+  .status-path li:last-child {
+    padding-bottom: 0;
+  }
+
+  .status-path li::before {
+    top: 0.2rem;
+  }
+
+  .status-path li::after {
+    top: 1rem;
+    right: auto;
+    bottom: 0.1rem;
+    left: calc(0.275rem - 0.5px);
+    width: 1px;
+    height: auto;
+    background: linear-gradient(180deg, rgb(var(--state-rgb) / 0.75) 50%, transparent 0) 0 0 / 1px
+      0.5rem repeat-y;
+  }
+
+  .status-card[data-state='ready'] .status-path li::after {
+    background: rgb(var(--state-rgb) / 0.55);
+  }
+}

@@ -17,7 +17,9 @@ Validating a request never fetches its URL or creates a job.
 ## Local development
 
 Prerequisite: Docker Desktop running Linux containers with Docker Compose v2 or
-newer. Host Java, Node, Maven, and npm are not used. Run from this project folder:
+newer. Host Java, Node, Maven, and npm are not used; frontend tooling runs on
+Node 22 LTS inside the `node:22-alpine` tooling container. Run from this project
+folder:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify.ps1
@@ -28,10 +30,10 @@ formatting checks, Java and frontend tests/builds, builds the runtime images,
 starts the stack, and runs a real HTTP smoke test. It leaves the local stack up.
 Verification briefly stops only Firecrawl's database to check readiness failure
 and restores it in a `finally` block; the persisted volume is never deleted.
-The documented verification command passed locally: 43 backend tests, 6 UI tests,
+The documented verification command passed locally: 43 backend tests, 9 UI tests,
 8 real HTTP checks, production builds, and database migration/restart checks.
 See [the evidence log](docs/EVIDENCE.md) for exact commands, resolved failures,
-changed files, and the remaining interactive-browser tooling limitation.
+changed files, and what the browser checks did and did not cover.
 
 Open <http://localhost:18101>. The API is available through the same origin under
 `/api`. Port 18201 is reserved but **not published**. PostgreSQL has no host port.
@@ -47,19 +49,30 @@ docker compose -p firecrawl -f .\infra\docker\compose.yaml down
 
 ## Short local walkthrough
 
-1. Open <http://localhost:18101> and check the API/database readiness card.
-2. Submit the prefilled synthetic URL with the acknowledgment unchecked. Expect
-   a field error, not a crawl.
+1. Open <http://localhost:18101>. The status pill in the header and the "Stack
+   readiness" section both show the real API/database readiness.
+2. Under "Validate a request", submit the prefilled synthetic URL with the
+   acknowledgment unchecked. Expect a field error, not a crawl.
 3. Check the acknowledgment and submit again. Expect "Request is valid" and an
    explicit statement that execution is disabled.
-4. Change the page budget to 101. Expect a budget error; the supported validation
-   range is 1-100.
+4. Type 101 as the page budget (the step buttons stop at 100). Expect a budget
+   error; the supported validation range is 1-100.
+
+The request preview beside the form shows the body that is sent. The landscape
+behind the page is decorative and generated in the browser; it is not data. It
+needs hardware WebGL, and without it the page shows a plain background instead.
+With "reduce motion" enabled in the operating system the page renders without
+animation and the landscape is a single still picture behind the headline.
 
 This demonstrates the Phase 1 contract only, not the full product or benchmarks.
 
 ## Troubleshooting
 
 - Docker must report `OSType=linux`. Keep host Node/Java unchanged.
+- If `docker` cannot connect to `dockerDesktopLinuxEngine`, Docker Desktop is not
+  running. Start it (`docker desktop start`), then bring this project back with
+  `docker compose -p firecrawl -f .\infra\docker\compose.yaml up --detach --wait db api web`.
+  The services have no restart policy, so they stay stopped after a reboot.
 - The first run downloads public container images and Maven/npm dependencies.
   Tooling is capped at 1 CPU/1 GiB and runs sequentially; allow extra time on a
   busy shared Docker host.

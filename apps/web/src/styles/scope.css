@@ -1,0 +1,255 @@
+.facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-bottom: 1px solid var(--line-strong);
+}
+
+/*
+ * The label comes first in the markup (dt before dd) but is shown under its figure. Packing
+ * toward the top keeps figures aligned when one label wraps onto more lines than its neighbour.
+ */
+.fact {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: 0.9rem;
+  padding: 0 1rem clamp(1.25rem, 2.5vw, 2rem) 0;
+}
+
+.fact + .fact {
+  padding-left: clamp(1rem, 2vw, 2rem);
+  border-left: 1px solid var(--line);
+}
+
+.fact dt {
+  color: var(--paper-dim);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.fact dd {
+  font-size: clamp(3.5rem, 10.5vw, 11rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 520;
+  letter-spacing: -0.07em;
+  line-height: 0.82;
+}
+
+/* The two zeros are drawn hollow: they count things that deliberately never happen. */
+.fact:nth-child(-n + 2) dd {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--paper-dim);
+}
+
+.fact:last-child dd {
+  color: var(--accent);
+}
+
+/* The figures are facts about the build; say so, because large numbers read as telemetry. */
+.facts-note {
+  margin-top: 0.9rem;
+  color: var(--paper-faint);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.ledger {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(2.5rem, 6vw, 6.5rem);
+  margin-top: clamp(3rem, 7vw, 6.5rem);
+}
+
+.ledger-title {
+  margin-bottom: 1.1rem;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.ledger-row {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr);
+  align-items: baseline;
+  padding: clamp(0.9rem, 1.6vw, 1.35rem) 0;
+  border-top: 1px solid var(--line-strong);
+  font-size: clamp(1.25rem, 2.35vw, 2.15rem);
+  font-weight: 480;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  transition:
+    padding-left 0.5s var(--ease-out),
+    color 0.3s ease;
+}
+
+/* A fill that rises behind a row of the current build when it is pointed at. */
+.ledger-row::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--accent);
+  transform: scaleY(0);
+  transform-origin: 50% 100%;
+  transition: transform 0.45s var(--ease-out);
+}
+
+.ledger-row:last-child {
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.ledger-index {
+  color: var(--paper-faint);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  transition: color 0.3s ease;
+}
+
+.ledger-future .ledger-title,
+.ledger-future .ledger-row {
+  color: var(--paper-faint);
+}
+
+.ledger-future .ledger-row {
+  border-top-style: dashed;
+}
+
+.ledger-future .ledger-row:last-child {
+  border-bottom-style: dashed;
+}
+
+@media (hover: hover) {
+  .ledger-column:not(.ledger-future) .ledger-row:hover {
+    padding-left: 1rem;
+    color: var(--accent-ink);
+  }
+
+  .ledger-column:not(.ledger-future) .ledger-row:hover::before {
+    transform: none;
+  }
+
+  .ledger-column:not(.ledger-future) .ledger-row:hover .ledger-index {
+    color: var(--accent-ink);
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 1.75rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .fact:nth-child(odd) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .ledger {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.site-footer {
+  margin-top: clamp(6rem, 14vw, 13rem);
+  padding: 0 var(--gutter);
+  overflow: hidden;
+  border-top: 1px solid var(--line-strong);
+  container-type: inline-size;
+}
+
+/*
+ * Where the scene is running, the footer is a screen of its own: the page ends on the scene's
+ * widest view, with the note above it and the wordmark below.
+ */
+.scene[data-quality]:not([data-quality='off']):not([data-still]) ~ .site-footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100vh;
+  min-height: 100svh;
+  /* At the end of the page the footer starts under the fixed header. */
+  padding-top: var(--header-height);
+}
+
+/* The footer's small print is on a band of the page's ink; below it the scene is in the open. */
+.footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.25rem 3rem;
+  margin: 0 calc(var(--gutter) * -1);
+  padding: clamp(1.75rem, 3vw, 2.75rem) var(--gutter);
+  border-bottom: 1px solid var(--line);
+  background: var(--sheet);
+}
+
+.footer-note {
+  max-width: 44rem;
+  color: var(--paper-dim);
+  font-size: 0.9375rem;
+  line-height: 1.65;
+}
+
+.footer-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.footer-top .icon {
+  transition: translate 0.4s var(--ease-out);
+}
+
+@media (hover: hover) {
+  .footer-top:hover .icon {
+    translate: 0 -0.3rem;
+  }
+}
+
+/*
+ * Set one character per element, the wordmark measures 8.25em at this tracking, so 12.1cqi
+ * spans the footer's content width edge to edge at every viewport (10.7vw is the fallback
+ * without container units, sized for the narrowest window). It bleeds off the bottom edge,
+ * where the footer clips it. The fill is on each character, because a gradient clipped to the
+ * whole line's text does not follow characters that move.
+ */
+.wordmark {
+  margin-bottom: -0.17em;
+  font-size: 10.7vw;
+  font-size: 12.1cqi;
+  font-weight: 600;
+  letter-spacing: -0.07em;
+  line-height: 0.8;
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.wordmark .char {
+  background: linear-gradient(to bottom, var(--paper) 12%, rgb(238 242 231 / 0.1) 92%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

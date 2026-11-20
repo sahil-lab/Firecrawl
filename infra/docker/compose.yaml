@@ -98,7 +98,7 @@ services:
     logging: *bounded-logs
 
   node:
-    image: node:24-alpine
+    image: node:22-alpine
     profiles: ['tools']
     working_dir: /workspace
     volumes:

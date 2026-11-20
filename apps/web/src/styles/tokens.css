@@ -1,0 +1,41 @@
+:root {
+  --ink: #080b09;
+  --ink-raised: #0d120f;
+  --paper: #eef2e7;
+  --paper-dim: #a3ada4;
+  /*
+   * The dimmest text colour: at least 4.5:1 on --ink and on --ink-raised, and on --sheet
+   * whatever is behind the sheet.
+   */
+  --paper-faint: #808a81;
+  --line: rgb(238 242 231 / 0.11);
+  --line-strong: rgb(238 242 231 / 0.24);
+
+  --accent: #d4f56a;
+  --accent-rgb: 212 245 106;
+  --accent-ink: #0c1105;
+  --danger: #ff8672;
+  --danger-rgb: 255 134 114;
+  --warn: #f3c969;
+  --warn-rgb: 243 201 105;
+  /* Scene only: the cooler colour distant contour lines shift toward, for each of the two tints. */
+  --accent-far-rgb: 96 232 214;
+  --danger-far-rgb: 255 176 128;
+
+  /*
+   * The page's ink, nearly opaque. A scene moves behind the whole page, and small text is never
+   * placed on it directly: it sits on this, or on something at least as opaque. At 92% the
+   * faintest text colour would keep 4.5:1 on it even if the scene behind it were white.
+   */
+  --sheet: rgb(8 11 9 / 0.92);
+
+  --font-sans: 'Geist Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Instrument Serif', 'Iowan Old Style', 'Times New Roman', serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+
+  --gutter: clamp(1.125rem, 4vw, 3.5rem);
+  --header-height: 4.5rem;
+  --radius: 1.25rem;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
+}

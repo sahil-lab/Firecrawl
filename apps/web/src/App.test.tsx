@@ -122,4 +122,69 @@ describe('Phase 1 dashboard', () => {
       expect(screen.getByRole('button', { name: 'Validate request' })).toBeEnabled(),
     );
   });
+
+  it('previews the request that will be sent and steps the page budget only within 1-100', async () => {
+    vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockResolvedValueOnce(json({ status: 'UP' })));
+    const user = userEvent.setup();
+    render(<App />);
+    await screen.findByText('API + database ready');
+    const preview = screen.getByRole('figure', { name: /Request preview/ });
+    const budget = screen.getByLabelText('Page budget');
+    const increase = screen.getByRole('button', { name: 'Increase page budget' });
+    const decrease = screen.getByRole('button', { name: 'Decrease page budget' });
+
+    expect(preview).toHaveTextContent('"maxPages": 10, "termsAccepted": false');
+    await user.click(increase);
+    await user.click(screen.getByRole('checkbox'));
+    expect(budget).toHaveValue(11);
+    expect(preview).toHaveTextContent('"maxPages": 11, "termsAccepted": true');
+
+    await user.clear(budget);
+    await user.type(budget, '250');
+    expect(increase).toHaveAttribute('aria-disabled', 'true');
+    await user.click(increase);
+    expect(budget).toHaveValue(250);
+    await user.click(decrease);
+    expect(budget).toHaveValue(100);
+
+    await user.clear(budget);
+    expect(decrease).toHaveAttribute('aria-disabled', 'true');
+    await user.click(decrease);
+    expect(budget).toHaveValue(null);
+    await user.click(increase);
+    expect(budget).toHaveValue(1);
+  });
+
+  it('clears a stale validation result when the page budget is stepped', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn<typeof fetch>()
+        .mockResolvedValueOnce(json({ status: 'UP' }))
+        .mockResolvedValueOnce(json({ valid: true, executionEnabled: false })),
+    );
+    const user = userEvent.setup();
+    render(<App />);
+    await screen.findByText('API + database ready');
+    await user.click(screen.getByRole('checkbox'));
+    await user.click(screen.getByRole('button', { name: 'Validate request' }));
+    expect(await screen.findByText('Request is valid.')).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: 'Increase page budget' }));
+    expect(screen.queryByText('Request is valid.')).not.toBeInTheDocument();
+  });
+
+  it('names the headline as one sentence although it is drawn character by character', async () => {
+    vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockResolvedValueOnce(json({ status: 'UP' })));
+    render(<App />);
+    await screen.findByText('API + database ready');
+
+    const sentence = 'Good crawling starts with clear boundaries.';
+    const headline = screen.getByRole('heading', { level: 1 });
+    expect(headline).toHaveAccessibleName(sentence);
+    // What is drawn for the eye is the same sentence, one element per character.
+    const drawn = Array.from(headline.querySelectorAll('[data-char]'), (char) => char.textContent);
+    expect(drawn).toEqual(Array.from(sentence.split(' ').join('')));
+    expect(screen.getByRole('region', { name: sentence })).toBe(headline.closest('section'));
+  });
 });

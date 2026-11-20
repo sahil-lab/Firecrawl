@@ -23,13 +23,19 @@
       checks. The complete verification script exited successfully.
 - [x] Verify the real dashboard renders and displays API/database readiness.
 - [x] Persist exact commands, observed results, limitations, and next steps.
-- [ ] Complete interactive browser automation: browser tools lost page handles
-      and timed out on clicks. No interactive or responsive visual-test pass is
-      claimed. The six component tests and eight real HTTP tests pass; the
-      README provides a manual walkthrough.
+- [x] Redesign the dashboard and move frontend tooling to Node 22 LTS without
+      changing the Phase 1 contract (2026-11-18; decisions D009 and D010).
+- [x] Replace the hero's flat contour field with a landscape scene behind the
+      whole page, again without changing the Phase 1 contract (2026-11-20;
+      decision D010).
+- [ ] Add a repeatable browser test to the project. The interface was exercised
+      in headless Edge (pointer, keyboard, touch emulation, several window
+      sizes, reduced motion, measured text contrast, and the scene's fallbacks)
+      by scripts that are not part of this repository. The nine component tests
+      and eight real HTTP tests pass; the README provides a manual walkthrough.
 
 Implementation remains within Phase 0/1. Git actions remain approval-gated,
-and the Git provenance and browser automation limitations remain explicit above.
+and the Git provenance and browser-test limitations remain explicit above.
 See [execution evidence](EVIDENCE.md).
 
 ## Phase 2 - Next, not authorized in this delivery

@@ -1,0 +1,312 @@
+.hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: calc(var(--header-height) + clamp(0.75rem, 2.5vh, 2rem)) var(--gutter)
+    clamp(1rem, 2.5vh, 1.75rem);
+  overflow: clip;
+}
+
+/* Stands in for the scene's light where no scene can be drawn. */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(60rem 42rem at 84% 6%, rgb(var(--accent-rgb) / 0.1), transparent 62%),
+    radial-gradient(46rem 34rem at 4% 104%, rgb(var(--accent-rgb) / 0.05), transparent 60%);
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+.scene[data-quality]:not([data-quality='off']) ~ main .hero::before {
+  opacity: 0;
+}
+
+/* Corner marks that frame the hero like a viewfinder. */
+.hero-frame {
+  position: absolute;
+  inset: calc(var(--header-height) - 0.5rem) calc(var(--gutter) * 0.4) 0.6rem;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.hero-frame i {
+  position: absolute;
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 0 solid var(--line-strong);
+}
+
+.hero-frame i:nth-child(1) {
+  top: 0;
+  left: 0;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+
+.hero-frame i:nth-child(2) {
+  top: 0;
+  right: 0;
+  border-top-width: 1px;
+  border-right-width: 1px;
+}
+
+.hero-frame i:nth-child(3) {
+  right: 0;
+  bottom: 0;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+}
+
+.hero-frame i:nth-child(4) {
+  bottom: 0;
+  left: 0;
+  border-bottom-width: 1px;
+  border-left-width: 1px;
+}
+
+/*
+ * The four rows are placed by name rather than by order, so that the scrim can lie under the
+ * last two without pushing them aside.
+ */
+.hero-top {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+
+/*
+ * The hero's small print sits low in a moving scene, so the page's ink is laid under the two
+ * rows that hold it. It fades in above them, where the scene should still show through, is
+ * already most of the way to a sheet where the lede starts, and is as opaque as one from the
+ * caption down.
+ */
+.hero-scrim {
+  grid-area: 3 / 1 / 5 / 2;
+  z-index: -1;
+  margin: -5rem calc(var(--gutter) * -1) calc(clamp(1rem, 2.5vh, 1.75rem) * -1);
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgb(8 11 9 / 0.8) 5rem,
+    rgb(8 11 9 / 0.93) calc(100% - 7rem)
+  );
+  pointer-events: none;
+}
+
+/*
+ * The title fills the width on wide viewports, but on short ones it shrinks so the three
+ * lines plus the surrounding chrome (about 22rem) still fit above the fold.
+ */
+.hero-title {
+  grid-area: 2 / 1;
+  align-self: end;
+  padding-top: 2rem;
+  font-size: clamp(2.35rem, min(12.4vw, (100vh - 22rem) / 2.7), 13.5rem);
+  font-size: clamp(2.35rem, min(12.4vw, (100svh - 22rem) / 2.7), 13.5rem);
+  font-weight: 560;
+  letter-spacing: -0.052em;
+  line-height: 0.9;
+}
+
+.hero-title-art {
+  display: block;
+}
+
+/*
+ * Each line is a mask for its rising characters; the padding keeps descenders from being
+ * clipped and leaves room above for a character to hop. Only the vertical axis is clipped, so
+ * a line can slide sideways as the hero leaves.
+ */
+.hero-line {
+  display: block;
+  margin: -0.14em -0.1em -0.15em 0;
+  padding: 0.14em 0.1em 0.15em 0;
+  overflow-x: visible;
+  overflow-y: clip;
+}
+
+.hero-line:nth-child(2) {
+  padding-left: clamp(0rem, 9vw, 11rem);
+}
+
+/* As wide as its text, so the scene can tell exactly where the headline is. */
+.hero-line-text {
+  display: inline-block;
+}
+
+.hero-title .char {
+  transform-origin: 0 100%;
+}
+
+.hero-title em {
+  font-size: 1.05em;
+  letter-spacing: -0.035em;
+}
+
+.hero-bottom {
+  grid-area: 3 / 1;
+  display: grid;
+  grid-template-columns: minmax(0, 34rem) auto;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem 3rem;
+  margin-top: clamp(1.25rem, 3.5vh, 2.75rem);
+  padding-top: clamp(1rem, 2.5vh, 1.75rem);
+  border-top: 1px solid var(--line-strong);
+}
+
+.lede {
+  color: var(--paper-dim);
+  font-size: clamp(1rem, 1.35vw, 1.3rem);
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* The caption describes the scene, so it stays hidden until a scene has actually been drawn. */
+.hero-caption {
+  grid-area: 4 / 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.75rem;
+  margin-top: clamp(1rem, 2.5vh, 1.75rem);
+  color: var(--paper-faint);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  visibility: hidden;
+}
+
+.scene[data-quality]:not([data-quality='off']) ~ main .hero-caption {
+  visibility: visible;
+}
+
+/* Only promise interaction where it exists: precise pointers with motion enabled. */
+.hero-caption-hint {
+  display: none;
+  margin-left: auto;
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  [data-motion='on'] .hero-caption-hint {
+    display: inline;
+  }
+
+  /* A scene that has stopped to protect the page no longer reacts, so the hint goes too. */
+  [data-motion='on'] .scene[data-quality='stopped'] ~ main .hero-caption-hint {
+    display: none;
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .hero-bottom {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/*
+ * Marquee: two rows that run in opposite directions. In each, two identical tracks slide by
+ * one track width for a seamless loop. The second row is the first again, drawn in outline.
+ */
+.marquee {
+  overflow: hidden;
+  border-block: 1px solid var(--line-strong);
+  background: rgb(8 11 9 / 0.55);
+  user-select: none;
+}
+
+.marquee-row {
+  display: flex;
+}
+
+.marquee-row + .marquee-row {
+  border-top: 1px solid var(--line);
+}
+
+.marquee-track {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-around;
+  min-width: 100%;
+}
+
+.marquee-item {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.25rem, 3vw, 3rem);
+  padding: clamp(0.9rem, 2vw, 1.6rem) 0 clamp(0.9rem, 2vw, 1.6rem) clamp(1.25rem, 3vw, 3rem);
+  font-size: clamp(1.75rem, 4.8vw, 4.75rem);
+  font-weight: 520;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.marquee-item:nth-child(even) span {
+  color: var(--accent);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+.marquee-item .icon-spark {
+  color: var(--accent);
+  font-size: 0.5em;
+  stroke-width: 1.75;
+}
+
+.marquee-row[data-reversed] .marquee-item span {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--line-strong);
+}
+
+.marquee-row[data-reversed] .marquee-item:nth-child(even) span {
+  -webkit-text-stroke-color: rgb(var(--accent-rgb) / 0.55);
+}
+
+.marquee-row[data-reversed] .icon-spark {
+  opacity: 0.45;
+}
+
+/* Without motion the strip cannot scroll, so one row wraps and shows every statement once. */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-row[data-reversed] {
+    display: none;
+  }
+
+  .marquee-track {
+    flex-shrink: 1;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    min-width: 0;
+    padding: clamp(0.5rem, 1vw, 1rem) clamp(1.25rem, 3vw, 3rem) clamp(0.5rem, 1vw, 1rem) 0;
+  }
+
+  .marquee-track[aria-hidden] {
+    display: none;
+  }
+
+  .marquee-item {
+    padding-block: clamp(0.4rem, 0.8vw, 0.75rem);
+    font-size: clamp(1.5rem, 3.2vw, 3rem);
+  }
+}
